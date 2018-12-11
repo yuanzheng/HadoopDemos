@@ -16,10 +16,12 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
-
+/** Build n-gram library
+ *
+ */
 public class NGramLibraryBuilder {
 
-    /** Build n-gram library
+    /**
      *
      * LongWritable, Text: 输入 文件特别大，很多行！所以KEY 是 LongWritable. Text 是每一行
      *
