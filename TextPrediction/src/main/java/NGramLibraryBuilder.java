@@ -37,24 +37,49 @@ public class NGramLibraryBuilder {
 
         @Override
         public void setup(Context context) {
-
+            Configuration configuration = context.getConfiguration();
+            noGram = configuration.getInt("noGram",5);
         }
 
-        /** map method, 处理输入文件中的data
+        /** map method, 处理输入文件中的data。生成 N-Gram Library 的 key。
+         *  需要 同时 创建 2-Gram, 3-Gram, ... 直到 N-gram
          *
          * @param key  OFFSET of input
          * @param value  the context of the current line
-         * @param context
+         * @param context object is able to write output
          * @throws IOException
          * @throws InterruptedException
          */
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
-            // read sentence by sentence
-
-
+            // read sentence by sentence, system does it automatically by the settings of configuration
             // split sentence in to 2-gram ... n-gram
+            // Preprocessing: Clean data, e.g. any non-alphabet character will be replaced by empty spaces.
+            String sentence = value.toString().toLowerCase().replace("[^a-z]", " ");
+            // split a string by empty spaces
+            String[] words = sentence.split("\\s+");
+
+            if (words.length < 2) {
+                return;
+            }
+
+            StringBuilder stringBuilder;
+            for (int i=0; i<words.length-1; i++) {
+                stringBuilder = new StringBuilder();
+
+                // add the first word
+                stringBuilder.append(words[i]);
+                // add the second word, third word, ... till the Nth
+                for (int j = 1; j + i<words.length && j < noGram; j++) {
+                    stringBuilder.append(" ");
+                    stringBuilder.append(words[i+j]);
+
+                    // output
+                    context.write(new Text(stringBuilder.toString().trim()), new IntWritable(1));
+                }
+            }
+
         }
 
     }
