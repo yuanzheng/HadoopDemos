@@ -7,6 +7,10 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.TreeMap;
 
 public class LanguageModelBuilder {
 
@@ -76,8 +80,22 @@ public class LanguageModelBuilder {
             // top k
             // Read data, Design 实现topk : key = this is Big, value = TreeMap <frequency, List<following_word> e.g. <100, List("data", "bird")>
 
+            TreeMap<Integer, List<String>> treeMap = new TreeMap<Integer, List<String>>(Collections.<Integer>reverseOrder());
+            for (Text value : values) {
+                String[] parts = value.toString().trim().split("=");
+                String followingWord = parts[0].trim();
+                int freqency = Integer.parseInt(parts[1].trim());
 
+                //check TreeMap, all word with the same frequency will be added into the same Arraylist
+                if (treeMap.containsKey(freqency)) {
+                    treeMap.get(freqency).add(followingWord);
+                } else {
+                    List<String> tmp = new ArrayList<String>();
+                    tmp.add(followingWord);
 
+                    treeMap.put(freqency, tmp);
+                }
+            }
 
             // write to database
         }
