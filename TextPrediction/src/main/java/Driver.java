@@ -18,7 +18,7 @@ public class Driver {
     private static String nGramLib;
     private static String numberOfNGram = "5";           // Default
     private static String threshold = "10";              // Default
-    private static String numberOfFollowingWords = "3";  // Default
+    private static String topk = "3";  // Default
 
 
     public static void main(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
@@ -32,7 +32,7 @@ public class Driver {
 
         //the word with frequency under threshold will be discarded
         threshold = args[3];
-        numberOfFollowingWords = args[4];
+        topk = args[4];
 
         // start job 1
         jobOne();
@@ -82,7 +82,7 @@ public class Driver {
         Configuration conf2 = new Configuration();
         // 自定义 property:
         conf2.set("threshold", threshold);
-        conf2.set("numberOfFollowingWords", numberOfFollowingWords);
+        conf2.set("topk", topk);
 
         DBConfiguration.configureDB(conf2,
                 "com.mysql.jdbc.Driver",
@@ -93,12 +93,25 @@ public class Driver {
         Job job2 = Job.getInstance(conf2);
         job2.setJobName("Model");
         job2.setJarByClass(Driver.class);
+
+        /** Add an external dependency to current job
+         *  1. upload dependency to hdfs
+         *  2. use "addArchiveToClassPath" method to define the dependency path on hdfs
+         *
+         *  这个JAR 包帮助 链接 database
+         *
+         *  所以需要 hadoop-mapreduce-client-core
+         */
         job2.addArchiveToClassPath(new Path("path_to_ur_connector"));
 
         job2.setMapperClass(LanguageModelBuilder.LanguageModelMap.class);
         job2.setReducerClass(LanguageModelBuilder.LanguageModelReduce.class);
 
-        // set Mapper的 Output 类型
+        /** Because map output key and value are inconsistent with reducer output key and value
+         *  setMapOutputKeyClass, setMapOutputValueClass, setOutputKeyClass, setOutputValueClass
+         *  会出错，如果不明确指出类型
+         */
+        // set Mapper的 Output 类型,
         job2.setMapOutputKeyClass(Text.class);
         job2.setMapOutputValueClass(Text.class);
 
