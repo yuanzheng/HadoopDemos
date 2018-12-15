@@ -7,10 +7,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 public class LanguageModelBuilder {
 
@@ -52,6 +49,8 @@ public class LanguageModelBuilder {
             // output:  "this is Big" => "data=100"
             context.write(new Text(outputKey), new Text(outputValue));
 
+            // Shuffle by key: "this is Big", all values will be put into list: {"data=100", "apple=120", "bird=12122"}
+
         }
 
     }
@@ -59,10 +58,12 @@ public class LanguageModelBuilder {
 
     public static class LanguageModelReduce extends Reducer<Text, Text, DBOutputWritable, NullWritable> {
 
+        int topk;
+
         @Override
         public void setup(Context context) {
-
-
+            Configuration conf = context.getConfiguration();
+            topk = conf.getInt("topk", 5);
         }
 
         /**
@@ -76,9 +77,8 @@ public class LanguageModelBuilder {
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
-            // Sort on frequency
-            // top k
             // Read data, Design 实现topk : key = this is Big, value = TreeMap <frequency, List<following_word> e.g. <100, List("data", "bird")>
+            // Sort on frequency
 
             TreeMap<Integer, List<String>> treeMap = new TreeMap<Integer, List<String>>(Collections.<Integer>reverseOrder());
             for (Text value : values) {
@@ -97,7 +97,20 @@ public class LanguageModelBuilder {
                 }
             }
 
-            // write to database
+            // Select top K
+            Iterator<Integer> iter = treeMap.keySet().iterator();
+            for (int j=0; iter.hasNext() && j < topk; ) {
+
+                int count = iter.next();
+                List<String> words = treeMap.get(count);
+
+                for (String eachWord : words) {
+                    context.write(new DBOutputWritable(key.toString(), eachWord, count), NullWritable.get());
+                    j++;
+                }
+            }
+
+            // TODO write to database
         }
 
     }
