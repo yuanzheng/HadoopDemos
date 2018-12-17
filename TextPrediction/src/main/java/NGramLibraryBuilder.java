@@ -27,6 +27,11 @@ public class NGramLibraryBuilder {
 
         int noGram;
 
+        /** Initialize noGram
+         *  Value has been set by configuration in the Driver.
+         *
+         * @param context, gets configuration settings
+         */
         @Override
         public void setup(Context context) {
             Configuration configuration = context.getConfiguration();
@@ -58,6 +63,7 @@ public class NGramLibraryBuilder {
             }
 
             StringBuilder stringBuilder;
+
             for (int i = 0; i < words.length - 1; i++) {
                 stringBuilder = new StringBuilder();
 
@@ -96,7 +102,7 @@ public class NGramLibraryBuilder {
                 sum += value.get();
             }
 
-            // output
+            // output format: key + \t + value of IntWritable, e.g. this is\t100
             context.write(key, new IntWritable(sum));
         }
 
