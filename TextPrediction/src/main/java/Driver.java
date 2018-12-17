@@ -70,6 +70,7 @@ public class Driver {
         job1.setInputFormatClass(TextInputFormat.class);
         job1.setOutputFormatClass(TextOutputFormat.class);
 
+        // Read data from "inputDir" file and Write data into "nGramLib" file
         TextInputFormat.setInputPaths(job1, new Path(inputDir));
         TextOutputFormat.setOutputPath(job1, new Path(nGramLib));
         job1.waitForCompletion(true);
@@ -123,9 +124,12 @@ public class Driver {
         job2.setInputFormatClass(TextInputFormat.class);
         job2.setOutputFormatClass(DBOutputFormat.class);
 
+        // Read data from "nGramLib" file
         TextInputFormat.setInputPaths(job2, nGramLib);
 
+        // define the table: table name and columns
         DBOutputFormat.setOutput(job2, "output", new String[]{"starting_phrase", "following_word", "count"});
+
 
         job2.waitForCompletion(true);
 
