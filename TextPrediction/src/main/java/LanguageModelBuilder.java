@@ -9,6 +9,9 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.io.IOException;
 import java.util.*;
 
+/** The purpose is to build a phrase with n words and guess the top K following words
+ *
+ */
 public class LanguageModelBuilder {
 
     public static class LanguageModelMap extends Mapper<LongWritable, Text, Text, Text> {
@@ -21,6 +24,15 @@ public class LanguageModelBuilder {
             threshold = configuration.getInt("threshold", 20);
         }
 
+        /** Read data from HDFS which is called N-Gram Library. The format should be "this is Big data\t100"
+         *  To build key "this is Big" and value "data=100" for reducer.
+         *
+         * @param key LonWritable offset of line.
+         * @param value Text, "this is Big data\t100"
+         * @param context
+         * @throws IOException
+         * @throws InterruptedException
+         */
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
             // read input
@@ -66,11 +78,14 @@ public class LanguageModelBuilder {
             topk = conf.getInt("topk", 5);
         }
 
-        /**
+        /** Sort value by descent order, based on the frequency. Only select the top K values (highest frequency)
+         *  Write key and each top K values into Database.
+         *
+         *  (Each key phrase only has top K values.)
          *
          * @param key  Text  e.g "this is Big"
          * @param values  Iterable<Text> { "data=100", "apple=102", "world=2" ....}
-         * @param context
+         * @param context  Context
          * @throws IOException
          * @throws InterruptedException
          */
@@ -84,33 +99,39 @@ public class LanguageModelBuilder {
             for (Text value : values) {
                 String[] parts = value.toString().trim().split("=");
                 String followingWord = parts[0].trim();
-                int freqency = Integer.parseInt(parts[1].trim());
+                int frequency = Integer.parseInt(parts[1].trim());
 
                 //check TreeMap, all word with the same frequency will be added into the same Arraylist
-                if (treeMap.containsKey(freqency)) {
-                    treeMap.get(freqency).add(followingWord);
+                if (treeMap.containsKey(frequency)) {
+                    treeMap.get(frequency).add(followingWord);
                 } else {
                     List<String> tmp = new ArrayList<String>();
                     tmp.add(followingWord);
 
-                    treeMap.put(freqency, tmp);
+                    treeMap.put(frequency, tmp);
                 }
             }
 
-            // Select top K
+            // Select top K value for each key phrase
             Iterator<Integer> iter = treeMap.keySet().iterator();
-            for (int j=0; iter.hasNext() && j < topk; ) {
+            int counter = 0;
+            while (iter.hasNext()) {
 
-                int count = iter.next();
-                List<String> words = treeMap.get(count);
+                int frequency = iter.next();
+                List<String> words = treeMap.get(frequency);
 
                 for (String eachWord : words) {
-                    context.write(new DBOutputWritable(key.toString(), eachWord, count), NullWritable.get());
-                    j++;
+                    // write to database
+                    context.write(new DBOutputWritable(key.toString(), eachWord, frequency), NullWritable.get());
+                    counter++;
+
+                    if (counter < topk) {
+                        break;
+                    }
                 }
             }
 
-            // TODO write to database
+
         }
 
     }
