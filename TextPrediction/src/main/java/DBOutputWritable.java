@@ -1,9 +1,11 @@
 import org.apache.hadoop.mapreduce.lib.db.DBWritable;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/** Object for Database
+ *
+ */
 public class DBOutputWritable implements DBWritable {
 
     private String inputPhrase;
