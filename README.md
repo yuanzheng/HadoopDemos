@@ -49,12 +49,11 @@ TODO
    ```
    
 5. Sync Source folder
-    我们从本地上传可执行文件，或需要被处理的文件，就需要一个Sync folder
-    本地目录: ~/src/
-    hadoop master 目录 : /root/src/
+   我们从本地上传可执行文件，或需要被处理的文件，就需要一个Sync folder
+   本地目录: ~/src/
+   hadoop master 目录 : /root/src/
     
-    将自己的代码copy到本地目录 src 中, 但凡在该目录下的任何操作都会自动实时映射到 hadoop master 容器中的 /root/src/ 中。
-    之后只要在本地~/src/中修改编辑代码, 在容器内执行命令即可。
+   将自己的代码copy到本地目录 src 中, 但凡在该目录下的任何操作都会自动实时映射到 hadoop master 容器中的/root/src/中。之后只要在本地~/src/中修改编辑代码, 在容器内执行命令即可。
 
 
 
