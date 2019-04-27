@@ -27,6 +27,7 @@ public class NGramLibraryBuilder {
 
         int noGram;
 
+
         /** Initialize noGram
          *  Value has been set by configuration in the Driver.
          *
@@ -54,7 +55,9 @@ public class NGramLibraryBuilder {
             // read sentence by sentence, system does it automatically by the settings of configuration
             // split sentence in to 2-gram ... n-gram
             // Preprocessing: Clean data, e.g. any non-alphabet character will be replaced by empty spaces.
-            String sentence = value.toString().toLowerCase().replace("[^a-z]", " ");
+            String sentence = value.toString().toLowerCase().replaceAll("[^a-z]", " ");
+
+
             // split a string by empty spaces
             String[] words = sentence.split("\\s+");
 
