@@ -41,7 +41,7 @@
                     </descriptorRefs>
                     <archive>     
                         <manifest>     
-                            <mainClass>WordCount</mainClass>
+                            <mainClass>Driver</mainClass>
                             <!-- example: <mainClass>mapreduce.WordCount</mainClass> -->            
                         </manifest>
                     </archive>
