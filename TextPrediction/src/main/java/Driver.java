@@ -37,8 +37,6 @@ public class Driver {
         // start job 1
         jobOne();
 
-
-        // TODO start job 2
         jobTwo();
     }
 
@@ -87,9 +85,9 @@ public class Driver {
 
         DBConfiguration.configureDB(conf2,
                 "com.mysql.jdbc.Driver",
-                "jdbc:mysql://localhost:3360/test",
+                "jdbc:mysql://192.168.1.98:8889/test",
                 "root",
-                "password");
+                "root");
 
         Job job2 = Job.getInstance(conf2);
         job2.setJobName("Model");
@@ -103,7 +101,7 @@ public class Driver {
          *
          *  所以需要 hadoop-mapreduce-client-core
          */
-        job2.addArchiveToClassPath(new Path("path_to_ur_connector"));
+        job2.addArchiveToClassPath(new Path("/mysql/mysql-connector-java-5.1.39-bin.jar"));
 
         job2.setMapperClass(LanguageModelBuilder.LanguageModelMap.class);
         job2.setReducerClass(LanguageModelBuilder.LanguageModelReduce.class);
