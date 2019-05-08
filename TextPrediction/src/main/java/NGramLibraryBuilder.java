@@ -6,6 +6,8 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 
@@ -27,6 +29,7 @@ public class NGramLibraryBuilder {
 
         int noGram;
 
+        private static final Log LOG = LogFactory.getLog(NGramMapper.class);
 
         /** Initialize noGram
          *  Value has been set by configuration in the Driver.
@@ -57,7 +60,11 @@ public class NGramLibraryBuilder {
             // Preprocessing: Clean data, e.g. any non-alphabet character will be replaced by empty spaces.
             String sentence = value.toString().toLowerCase().replaceAll("[^a-z]", " ");
 
-
+            // Log to syslog file
+            LOG.info("Map key: " + key);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Map value: " + sentence);
+            }
             // split a string by empty spaces
             String[] words = sentence.split("\\s+");
 
@@ -67,6 +74,7 @@ public class NGramLibraryBuilder {
 
             StringBuilder stringBuilder;
 
+            //compute all substrings
             for (int i = 0; i < words.length - 1; i++) {
                 stringBuilder = new StringBuilder();
 
