@@ -1,4 +1,5 @@
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -8,46 +9,68 @@ import org.apache.hadoop.mapreduce.lib.db.DBConfiguration;
 import org.apache.hadoop.mapreduce.lib.db.DBOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
 
 
-public class Driver {
+public class Driver extends Configured implements Tool {
 
-    private static String inputDir = "./";               // Default
+    private static String inputDir;               // Default
     private static String nGramLib;
     private static String numberOfNGram = "5";           // Default
     private static String threshold = "10";              // Default
     private static String topk = "3";  // Default
 
 
-    public static void main(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
+    @Override
+    public int run(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
 
+        if (args.length < 2) {
+            System.err.printf("Usage: hadoop jar TextPrediction-jar-with-dependencies.jar <input files> " +
+                            "<output nGramLib> <n-gram> <threshold> <topK> [generic options]\n",
+                    getClass().getSimpleName());
+            ToolRunner.printGenericCommandUsage(System.err);
+            return -1;
+        }
+
+        /* TODO  arguments from command line should be validated ! */
         // Read arguments from command line
         // input file
         inputDir = args[0];
         nGramLib = args[1];
-        // indicates the largest n-gram (2, 3, ..., N)
-        numberOfNGram = args[2];
-
-        //the word with frequency under threshold will be discarded
-        threshold = args[3];
-        topk = args[4];
+        
+        int normalTermination = 0;
 
         // start job 1
-        jobOne();
+        /* TODO handle ClassNotFoundException, IOException, InterruptedException */
+        int status = jobOne();
 
+        if (status != normalTermination) {
+            return 1; // means abnormal termination
+        }
 
-        // TODO start job 2
-        jobTwo();
+        // start job 2
+        /* TODO handle ClassNotFoundException, IOException, InterruptedException */
+        status = jobTwo();
+
+        if (status != normalTermination) {
+            return 1; // means abnormal termination
+        }
+
+        return normalTermination;
     }
 
-    private static void jobOne() throws ClassNotFoundException, IOException, InterruptedException {
+    private int jobOne() throws ClassNotFoundException, IOException, InterruptedException {
 
         /** Configuration 有默认参数，用set 方法 从新定义
          *
          */
         Configuration conf1 = new Configuration();
+        conf1.addResource("reference.xml");
+
+        numberOfNGram = String.valueOf(conf1.getInt("n-gram", Integer.parseInt(numberOfNGram)));
 
         /** Define the job to read data sentence by sentence
          *  重新定义系统的property delimiter
@@ -73,23 +96,37 @@ public class Driver {
         // Read data from "inputDir" file and Write data into "nGramLib" file
         TextInputFormat.setInputPaths(job1, new Path(inputDir));
         TextOutputFormat.setOutputPath(job1, new Path(nGramLib));
-        job1.waitForCompletion(true);
 
+        return job1.waitForCompletion(true) ? 0 : 1;
     }
 
 
-    private static void jobTwo() throws ClassNotFoundException, IOException, InterruptedException {
+    private int jobTwo() throws ClassNotFoundException, IOException, InterruptedException {
 
         Configuration conf2 = new Configuration();
-        // 自定义 property:
-        conf2.set("threshold", threshold);
-        conf2.set("topk", topk);
+        conf2.addResource("reference.xml");
+
+        if (conf2.get("threshold") == null) {
+            // 自定义 property:
+            conf2.set("threshold", threshold);
+        }
+
+
+        if (conf2.get("topk") == null) {
+            conf2.set("topk", topk);
+        }
+
+        String mysql = conf2.get("mysql_url");
+        String port = conf2.get("mysql_port");
+        String database = conf2.get("mysql_database");
+        String username = conf2.get("mysql_username");
+        String password = conf2.get("mysql_password");
 
         DBConfiguration.configureDB(conf2,
                 "com.mysql.jdbc.Driver",
-                "jdbc:mysql://localhost:3360/test",
-                "root",
-                "password");
+                "jdbc:mysql://" + mysql+ ":" + port + "/" + database,
+                username,
+                password);
 
         Job job2 = Job.getInstance(conf2);
         job2.setJobName("Model");
@@ -103,7 +140,8 @@ public class Driver {
          *
          *  所以需要 hadoop-mapreduce-client-core
          */
-        job2.addArchiveToClassPath(new Path("path_to_ur_connector"));
+        String connector = conf2.get("mysql_connector");
+        job2.addArchiveToClassPath(new Path(connector));
 
         job2.setMapperClass(LanguageModelBuilder.LanguageModelMap.class);
         job2.setReducerClass(LanguageModelBuilder.LanguageModelReduce.class);
@@ -131,8 +169,15 @@ public class Driver {
         DBOutputFormat.setOutput(job2, "output", new String[]{"starting_phrase", "following_word", "count"});
 
 
-        job2.waitForCompletion(true);
+        return job2.waitForCompletion(true)? 0 : 1;
 
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        int exitCode = ToolRunner.run(new Driver(), args);
+
+        System.exit(exitCode);
     }
 
 }

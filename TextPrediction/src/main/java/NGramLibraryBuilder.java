@@ -6,6 +6,8 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 
@@ -26,6 +28,8 @@ public class NGramLibraryBuilder {
     public static class NGramMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
         int noGram;
+
+        private static final Log LOG = LogFactory.getLog(NGramMapper.class);
 
         /** Initialize noGram
          *  Value has been set by configuration in the Driver.
@@ -54,9 +58,15 @@ public class NGramLibraryBuilder {
             // read sentence by sentence, system does it automatically by the settings of configuration
             // split sentence in to 2-gram ... n-gram
             // Preprocessing: Clean data, e.g. any non-alphabet character will be replaced by empty spaces.
-            String sentence = value.toString().toLowerCase().replace("[^a-z]", " ");
+            String sentence = value.toString().toLowerCase().replaceAll("[^a-z]", " ");
+
+            // Log to syslog file
+            LOG.info("Map key: " + key);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Map value: " + sentence);
+            }
             // split a string by empty spaces
-            String[] words = sentence.split("\\s+");
+            String[] words = sentence.trim().split("\\s+");
 
             if (words.length < 2) {
                 return;
@@ -64,6 +74,7 @@ public class NGramLibraryBuilder {
 
             StringBuilder stringBuilder;
 
+            //compute all substrings
             for (int i = 0; i < words.length - 1; i++) {
                 stringBuilder = new StringBuilder();
 

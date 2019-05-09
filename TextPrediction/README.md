@@ -54,18 +54,13 @@ Install MySQL database locally or AWS/Azure
    
 3. Start container
    * /start-hadoop.sh 启动啦，这是有2个 slaves的Hadoop system
-   * 在 Hadoop 的 src下
-     ```shell
-     $ wget https://s3-us-west-2.amazonaws.com/jiuzhang-bigdata/mysql-connector-java-5.1.39-bin.jar # 下载mysql-connector 为了远端链接mysql
-     ```
-     将下载的jar文件放到 /mysql 下
-   * Create Input folder at root, 将大量的训练文本放入
-   * 将 代码放入 src/下
-     * Compile source code, create jar file
-       ```shell
-       $ hadoop com.sun.tools.javac.Main *.java
-       $ jar cf ngram.jar *.class
-       ```
+   * Docker installation creates a 'src' which is a shared directory of hadoop and local host
+   
+## Run Text Prediction ##
+   1. Download [mysql-connector-java-5.1.39-bin.jar](http://dev.mysql.com/downloads/connector/j/). Move it to 
+     'src'
+   2. Copy TextPrediction.sh to ~/src
+   3. Run TextPrediction.sh (MySQL database should be setup before you run it.)
 
 
    
