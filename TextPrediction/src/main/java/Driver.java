@@ -1,4 +1,3 @@
-import com.sun.xml.bind.v2.TODO;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -41,14 +40,7 @@ public class Driver extends Configured implements Tool {
         // input file
         inputDir = args[0];
         nGramLib = args[1];
-        // indicates the largest n-gram (2, 3, ..., N)
-        numberOfNGram = args[2];
-
-        //the word with frequency under threshold will be discarded
-        threshold = args[3];
-        topk = args[4];
-
-
+        
         int normalTermination = 0;
 
         // start job 1
@@ -76,6 +68,9 @@ public class Driver extends Configured implements Tool {
          *
          */
         Configuration conf1 = new Configuration();
+        conf1.addResource("reference.xml");
+
+        numberOfNGram = String.valueOf(conf1.getInt("n-gram", Integer.parseInt(numberOfNGram)));
 
         /** Define the job to read data sentence by sentence
          *  重新定义系统的property delimiter
@@ -109,15 +104,29 @@ public class Driver extends Configured implements Tool {
     private int jobTwo() throws ClassNotFoundException, IOException, InterruptedException {
 
         Configuration conf2 = new Configuration();
-        // 自定义 property:
-        conf2.set("threshold", threshold);
-        conf2.set("topk", topk);
+        conf2.addResource("reference.xml");
+
+        if (conf2.get("threshold") == null) {
+            // 自定义 property:
+            conf2.set("threshold", threshold);
+        }
+
+
+        if (conf2.get("topk") == null) {
+            conf2.set("topk", topk);
+        }
+
+        String mysql = conf2.get("mysql_url");
+        String port = conf2.get("mysql_port");
+        String database = conf2.get("mysql_database");
+        String username = conf2.get("mysql_username");
+        String password = conf2.get("mysql_password");
 
         DBConfiguration.configureDB(conf2,
                 "com.mysql.jdbc.Driver",
-                "jdbc:mysql://192.168.1.98:8889/test",
-                "root",
-                "root");
+                "jdbc:mysql://" + mysql+ ":" + port + "/" + database,
+                username,
+                password);
 
         Job job2 = Job.getInstance(conf2);
         job2.setJobName("Model");
@@ -131,7 +140,8 @@ public class Driver extends Configured implements Tool {
          *
          *  所以需要 hadoop-mapreduce-client-core
          */
-        job2.addArchiveToClassPath(new Path("/mysql/mysql-connector-java-5.1.39-bin.jar"));
+        String connector = conf2.get("mysql_connector");
+        job2.addArchiveToClassPath(new Path(connector));
 
         job2.setMapperClass(LanguageModelBuilder.LanguageModelMap.class);
         job2.setReducerClass(LanguageModelBuilder.LanguageModelReduce.class);
