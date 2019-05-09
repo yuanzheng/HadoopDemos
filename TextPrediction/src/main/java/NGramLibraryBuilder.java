@@ -66,7 +66,7 @@ public class NGramLibraryBuilder {
                 LOG.debug("Map value: " + sentence);
             }
             // split a string by empty spaces
-            String[] words = sentence.split("\\s+");
+            String[] words = sentence.trim().split("\\s+");
 
             if (words.length < 2) {
                 return;
