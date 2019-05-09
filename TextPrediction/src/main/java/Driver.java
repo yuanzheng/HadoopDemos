@@ -1,4 +1,6 @@
+import com.sun.xml.bind.v2.TODO;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.NullWritable;
@@ -8,21 +10,33 @@ import org.apache.hadoop.mapreduce.lib.db.DBConfiguration;
 import org.apache.hadoop.mapreduce.lib.db.DBOutputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
 
 
-public class Driver {
+public class Driver extends Configured implements Tool {
 
-    private static String inputDir = "./";               // Default
+    private static String inputDir;               // Default
     private static String nGramLib;
     private static String numberOfNGram = "5";           // Default
     private static String threshold = "10";              // Default
     private static String topk = "3";  // Default
 
 
-    public static void main(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
+    @Override
+    public int run(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
 
+        if (args.length < 2) {
+            System.err.printf("Usage: hadoop jar TextPrediction-jar-with-dependencies.jar <input files> " +
+                            "<output nGramLib> <n-gram> <threshold> <topK> [generic options]\n",
+                    getClass().getSimpleName());
+            ToolRunner.printGenericCommandUsage(System.err);
+            return -1;
+        }
+
+        /* TODO  arguments from command line should be validated ! */
         // Read arguments from command line
         // input file
         inputDir = args[0];
@@ -34,13 +48,29 @@ public class Driver {
         threshold = args[3];
         topk = args[4];
 
-        // start job 1
-        jobOne();
 
-        jobTwo();
+        int normalTermination = 0;
+
+        // start job 1
+        /* TODO handle ClassNotFoundException, IOException, InterruptedException */
+        int status = jobOne();
+
+        if (status != normalTermination) {
+            return 1; // means abnormal termination
+        }
+
+        // start job 2
+        /* TODO handle ClassNotFoundException, IOException, InterruptedException */
+        status = jobTwo();
+
+        if (status != normalTermination) {
+            return 1; // means abnormal termination
+        }
+
+        return normalTermination;
     }
 
-    private static void jobOne() throws ClassNotFoundException, IOException, InterruptedException {
+    private int jobOne() throws ClassNotFoundException, IOException, InterruptedException {
 
         /** Configuration 有默认参数，用set 方法 从新定义
          *
@@ -71,12 +101,12 @@ public class Driver {
         // Read data from "inputDir" file and Write data into "nGramLib" file
         TextInputFormat.setInputPaths(job1, new Path(inputDir));
         TextOutputFormat.setOutputPath(job1, new Path(nGramLib));
-        job1.waitForCompletion(true);
 
+        return job1.waitForCompletion(true) ? 0 : 1;
     }
 
 
-    private static void jobTwo() throws ClassNotFoundException, IOException, InterruptedException {
+    private int jobTwo() throws ClassNotFoundException, IOException, InterruptedException {
 
         Configuration conf2 = new Configuration();
         // 自定义 property:
@@ -129,8 +159,15 @@ public class Driver {
         DBOutputFormat.setOutput(job2, "output", new String[]{"starting_phrase", "following_word", "count"});
 
 
-        job2.waitForCompletion(true);
+        return job2.waitForCompletion(true)? 0 : 1;
 
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        int exitCode = ToolRunner.run(new Driver(), args);
+
+        System.exit(exitCode);
     }
 
 }
