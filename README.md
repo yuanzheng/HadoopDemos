@@ -12,10 +12,8 @@ Implement n-gram model to predict following possible phrases for the current inp
 ### Page Rank ###
 Based on the basic theory behind PageRank algorithm, I implemented PageRank with MapReduce.
 
-**TODO**
-应该还有一个project， 暂时还没构思出要以什么方式呈现。
-
-*过去的工作用到Hadoop的项目并不多，学到的、用到的技术通过几个projects方式记录*
+### Recommender System ###
+[TODO]
 
 
 ### 基于docker搭建Hadoop集群 ###
