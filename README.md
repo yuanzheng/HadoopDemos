@@ -7,7 +7,7 @@ This repository contains the samples that demonstrate several system designs on 
 Development Environment: Linux + Docker + Hadoop, build up Docker containers for Hadoop clusters.
 
 ### Text Prediction ###
-Implement n-gram model to predict following possible phrases for the current input. (Check TextPrediction branch for details)
+Implement n-gram model to predict following possible phrases for the current input. (Check TextPrediction directory for details)
 
 ### Page Rank ###
 Based on the basic theory behind PageRank algorithm, I implemented PageRank with MapReduce.
