@@ -4,10 +4,10 @@
 
 This repository contains the samples that demonstrate several system designs on Hadoop Ecosystem. It contains the usage of MapReduce programming model, MySQL, Hbase and ... [TODO]
 
-Development Environment: Linux + Docker + Hadoop, 基于docker搭建Hadoop集群
+Development Environment: Linux + Docker + Hadoop, build up Docker containers for Hadoop clusters.
 
 ### Text Prediction ###
-实现n-gram model, 用来对搜索框中的输入进行联想。查看 TextPrediction branch。
+Implement n-gram model to predict following possible phrases for the current input. (Check TextPrediction branch for details)
 
 ### Page Rank ###
 TODO
