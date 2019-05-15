@@ -10,7 +10,7 @@ Development Environment: Linux + Docker + Hadoop, build up Docker containers for
 Implement n-gram model to predict following possible phrases for the current input. (Check TextPrediction branch for details)
 
 ### Page Rank ###
-TODO
+Based on the basic theory behind PageRank algorithm, I implemented PageRank with MapReduce.
 
 **TODO**
 应该还有一个project， 暂时还没构思出要以什么方式呈现。
