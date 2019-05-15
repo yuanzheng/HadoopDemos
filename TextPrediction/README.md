@@ -1,10 +1,33 @@
 # Text Prediction #
+Where text prediction has been deployed?
 
-After a user types a word, it gives the following words for several options. For example:
+For example:
+Google search
 
+<p align="center">
+  <img src="./google_search.png" alt="Size Limit CLI" width="738">
+</p>
 
-It adopts the N-Gram Model in this project.
-It will do: Based on the first N words, it will give the following N words.
+After a user types a word, it gives following words in several options.
+We adopt the N-Gram Model in this project.
+
+**What is N-Gram?** 
+An n-gram is a contiguous sequence of n items from a given sequence of text or speech.
+We love big _____?
+- data
+- apple
+
+Probability:
+P(data | big) > P(apple | big)
+
+Using probability predict, phrase 'data' should be recommended first rather than 'apple'.
+
+In this project, it will do: Based on the first N words, it will give the following N words.
+
+**Steps** 
+- Read a large-scale document collections
+- Build n-gram library (MapReduce job1)
+- Calculate probability (MapReduce job2)
 
 
 ## Coding Plans ##
