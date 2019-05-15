@@ -7,7 +7,8 @@ This repository contains the samples that demonstrate several system designs on 
 Development Environment: Linux + Docker + Hadoop, 基于docker搭建Hadoop集群
 
 ### Text Prediction ###
-TODO
+实现n-gram model, 用来对搜索框中的输入进行联想。查看 TextPrediction branch。
+
 ### Page Rank ###
 TODO
 
