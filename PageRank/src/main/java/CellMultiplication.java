@@ -30,6 +30,7 @@ public class CellMultiplication {
                 return;
             }
 
+            // 平均分配 probability
             double probability = (double) 1 / toPages.length;
 
             for (String toPage : toPages) {
@@ -86,7 +87,7 @@ public class CellMultiplication {
                 }
             }
 
-            /* Compute PR(n+1) */
+            /* Multiply transition cell and PR(n-1) cell */
             for (String each : transitionUnit) {
                 String[] data = each.split("=");
                 String to = data[0];
