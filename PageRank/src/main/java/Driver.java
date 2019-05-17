@@ -25,7 +25,7 @@ public class Driver extends Configured implements Tool {
     @Override
     public int run(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
 
-        if (args.length < 3) {
+        if (args.length < 4) {
             System.err.printf("Usage: hadoop jar PageRank-jar-with-dependencies.jar <input files> " +
                             " [generic options]\n",
                     getClass().getSimpleName());
@@ -62,13 +62,15 @@ public class Driver extends Configured implements Tool {
             }
         }
 
-
         return status;
     }
 
     /**
      * Transition Matrix cell * PR Matrix cell.
      *
+     * @param transitionMatrix
+     * @param prMatrix
+     * @param subPRMatrix
      * @return
      * @throws ClassNotFoundException
      * @throws IOException
@@ -93,11 +95,11 @@ public class Driver extends Configured implements Tool {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        /* TODO Read input file from */
+        /* Read input file from */
         MultipleInputs.addInputPath(job, new Path(transitionMatrix), TextInputFormat.class, CellMultiplication.TransitionMapper.class);
         MultipleInputs.addInputPath(job, new Path(prMatrix), TextInputFormat.class, CellMultiplication.PRMapper.class);
 
-        /* TODO Indicate a file directory for subPR */
+        /* Indicate a file directory for subPR */
         FileOutputFormat.setOutputPath(job, new Path(subPRMatrix));
 
         return job.waitForCompletion(true) ? 0 : 1;
@@ -107,6 +109,8 @@ public class Driver extends Configured implements Tool {
     /**
      * Sum up cell for each webpage.
      *
+     * @param subPRMatrix
+     * @param prMatrix
      * @return
      * @throws ClassNotFoundException
      * @throws IOException
@@ -126,7 +130,7 @@ public class Driver extends Configured implements Tool {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(DoubleWritable.class);
 
-        /* TODO */
+        /* Read PR matrix, and produce a new PR matrix file for next iteration. */
         FileInputFormat.addInputPath(job, new Path(subPRMatrix));
         FileOutputFormat.setOutputPath(job, new Path(prMatrix));
 
