@@ -1,5 +1,6 @@
 
 import org.apache.hadoop.io.DoubleWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -12,10 +13,10 @@ import java.io.IOException;
  */
 public class CellSum {
 
-    public static class PassMapper extends Mapper<Object, Text, Text, DoubleWritable> {
+    public static class PassMapper extends Mapper<LongWritable, Text, Text, DoubleWritable> {
 
         @Override
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
             String[] pageAndWeight = value.toString().trim().split("\t");
             if (pageAndWeight.length != 2) {

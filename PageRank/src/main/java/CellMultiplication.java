@@ -1,3 +1,4 @@
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -14,10 +15,10 @@ public class CellMultiplication {
     /** Generate transition matrix cell
      *
      */
-    public static class TransitionMapper extends Mapper<Object, Text, Text, Text> {
+    public static class TransitionMapper extends Mapper<LongWritable, Text, Text, Text> {
 
         @Override
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
             String[] input = value.toString().trim().split("\t");
             if (input.length < 2) {
@@ -45,10 +46,10 @@ public class CellMultiplication {
      *
      *
      */
-    public static class PRMapper extends Mapper<Object, Text, Text, Text> {
+    public static class PRMapper extends Mapper<LongWritable, Text, Text, Text> {
 
         @Override
-        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
+        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
             String[] keyValuePair = value.toString().trim().split("\t");
             if (keyValuePair.length < 2) {
