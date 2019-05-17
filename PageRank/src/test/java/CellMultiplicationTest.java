@@ -16,17 +16,16 @@ import static org.junit.Assert.*;
 
 public class CellMultiplicationTest {
 
-    String transitionRowA = "a\tb,c,d";
-    String transitionRowB = "b\ta,d";
-    String transitionRowC = "c\ta";
-    String transitionRowD = "d\tb,c";
-
     //Specification of Mapper
     MapDriver<LongWritable, Text, Text, Text> mapDriver1;
     MapDriver<LongWritable, Text, Text, Text> mapDriver2;
 
     //Specification of Reduce
     ReduceDriver<Text, Text, Text, Text> reduceDriver;
+
+    //Specification of MapReduce program
+    MapReduceDriver<LongWritable, Text, Text, Text, Text, Text> mapReduceDriver1;
+    //MapReduceDriver<LongWritable, Text, Text, Text, Text, Text> mapReduceDriver2;
 
     @Before
     public void setUp() throws Exception {
@@ -42,11 +41,22 @@ public class CellMultiplicationTest {
         CellMultiplication.MultiplicationReducer reducer = new CellMultiplication.MultiplicationReducer();
         reduceDriver = ReduceDriver.newReduceDriver(reducer);
 
+        //Setup MapReduce 2 job
+        mapReduceDriver1 = MapReduceDriver.newMapReduceDriver(transitionMapper, reducer);
+        //Setup MapReduce 2 job
+        //mapReduceDriver2 = MapReduceDriver.newMapReduceDriver(prMapper, reducer);
     }
 
 
     @Test
-    public void transitionMapperTest() throws IOException, InterruptedException {
+    public void transitionMapperTest() throws InterruptedException {
+
+        String transitionRowA = "a\tb,c,d";
+        /*
+        String transitionRowB = "b\ta,d";
+        String transitionRowC = "c\ta";
+        String transitionRowD = "d\tb,c";
+        */
 
         mapDriver1.withInput(new LongWritable(0), new Text(transitionRowA));
 
@@ -79,14 +89,73 @@ public class CellMultiplicationTest {
     }
 
     @Test
-    public void prMapperTest() throws IOException, InterruptedException {
+    public void prMapperTest() throws InterruptedException {
 
+        String prMatrixRow1 = "a\t0.25";
+        mapDriver2.withInput(new LongWritable(0), new Text(prMatrixRow1));
+
+        mapDriver2.withOutput(new Text("a"), new Text("0.25"));
+
+        try {
+            mapDriver2.runTest();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    public void reducerTest() throws IOException, InterruptedException {
+    public void reducerTest() throws InterruptedException {
 
+        /* Mapper:
+        String transitionRowA = "a\tb,c,d";
+        String prMatrixRow1 = "a\t0.25";
+        */
+        double probability = (double) 1/3;
+        double pagerank = 0.25;
+
+        List<Text> values = new ArrayList<Text>();
+        values.add(new Text("b=" + probability));
+        values.add(new Text("c=" + probability));
+        values.add(new Text("d=" + probability));
+        values.add(new Text(String.valueOf(pagerank)));
+
+        List<Pair<Text, Text>> output = new ArrayList<Pair<Text, Text>>();
+        output.add(new Pair<Text, Text>(new Text("b"), new Text(String.valueOf(probability * pagerank))));
+        output.add(new Pair<Text, Text>(new Text("c"), new Text(String.valueOf(probability * pagerank))));
+        output.add(new Pair<Text, Text>(new Text("d"), new Text(String.valueOf(probability * pagerank))));
+
+        reduceDriver.withInput(new Text("a"), values);
+
+        reduceDriver.withAllOutput(output);
+        try {
+            reduceDriver.runTest();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
+    @Test   // test MapReduce pipeline
+    public void mapReducerMultipleTest() throws IOException, InterruptedException {
+
+        String transitionRowA = "a\tb,c,d";
+        String prMatrixRow1 = "a\t0.25";
+        double probabilityA  = (double) 0;
+
+        /*
+        Output 的顺序是随机的 不是按照 我们的逻辑
+         */
+        mapReduceDriver1.withInput(new LongWritable(), new Text(transitionRowA))
+                .withOutput(new Text("b"), new Text(String.valueOf(probabilityA)))
+                .withOutput(new Text("c"), new Text(String.valueOf(probabilityA)))
+                .withOutput(new Text("d"), new Text(String.valueOf(probabilityA)));
+
+
+        try {
+            mapReduceDriver1.runTest();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
