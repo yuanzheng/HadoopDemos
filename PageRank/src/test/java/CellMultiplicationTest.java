@@ -41,7 +41,7 @@ public class CellMultiplicationTest {
         CellMultiplication.MultiplicationReducer reducer = new CellMultiplication.MultiplicationReducer();
         reduceDriver = ReduceDriver.newReduceDriver(reducer);
 
-        //Setup MapReduce 2 job
+        //Setup MapReduce 1 job
         mapReduceDriver1 = MapReduceDriver.newMapReduceDriver(transitionMapper, reducer);
         //Setup MapReduce 2 job
         //mapReduceDriver2 = MapReduceDriver.newMapReduceDriver(prMapper, reducer);
