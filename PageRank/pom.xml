@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.hadoop.mapreduce.demo</groupId>
-    <artifactId>Page Rank</artifactId>
+    <artifactId>PageRank</artifactId>
     <version>1.0</version>
     
     <properties>
