@@ -43,6 +43,8 @@ public class CellSum {
                 sum += each.get();
             }
 
+            //TODO Decimal format?
+
             context.write(key, new DoubleWritable(sum));
         }
     }

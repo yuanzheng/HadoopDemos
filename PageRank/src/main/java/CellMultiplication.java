@@ -17,6 +17,14 @@ public class CellMultiplication {
      */
     public static class TransitionMapper extends Mapper<LongWritable, Text, Text, Text> {
 
+        /**
+         *
+         * @param key
+         * @param value
+         * @param context <fromId, toId=probability>
+         * @throws IOException
+         * @throws InterruptedException
+         */
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
@@ -27,6 +35,7 @@ public class CellMultiplication {
             String fromPage = input[0].trim();
             String[] toPages = input[1].trim().split(",");
 
+            // TODO think about Edge cases
             if (toPages.length < 1) {
                 return;
             }
@@ -48,6 +57,14 @@ public class CellMultiplication {
      */
     public static class PRMapper extends Mapper<LongWritable, Text, Text, Text> {
 
+        /**
+         *
+         * @param key
+         * @param value
+         * @param context <websiteId, weight>
+         * @throws IOException
+         * @throws InterruptedException
+         */
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
@@ -68,7 +85,14 @@ public class CellMultiplication {
      */
     public static class MultiplicationReducer extends Reducer<Text, Text, Text, Text> {
 
-
+        /**
+         *
+         * @param key from website
+         * @param values to website probabilities and from website weight
+         * @param context <toId, probability * weightß>
+         * @throws IOException
+         * @throws InterruptedException
+         */
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
