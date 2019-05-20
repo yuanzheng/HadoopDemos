@@ -26,7 +26,8 @@ public class Driver extends Configured implements Tool {
     public int run(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
 
         if (args.length < 4) {
-            System.err.printf("Usage: hadoop jar PageRank-jar-with-dependencies.jar <input files> " +
+            System.err.printf("Usage: hadoop jar PageRank-jar-with-dependencies.jar <transition directory> " +
+                    " <PR directory> <unit Multiplication directory> <times of convergence>" +
                             " [generic options]\n",
                     getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
@@ -35,21 +36,21 @@ public class Driver extends Configured implements Tool {
 
         String transitionMatrix = args[0];
         String prMatrix = args[1];
-        String subPRMatrix = args[2];
+        String subPRMatrix = args[2];  // multiplication result directory, first mapreduce job's output
         int count = Integer.parseInt(args[3]); //times of convergence
 
         final int normalTermination = 0;
         int status = normalTermination;
 
-        /** TODO whether stopping mapreduce job when one of Mapreduce job terminates abnormally? */
         // after several loop, get the convergence
         for (int i = 0; i < count; i++) {
 
-            // first MapReduce job
+            // first MapReduce job， prMatrix+i is the directory of each PRn, subPRMatrix + i is the output of first MR
             status = cellMultiplicationJob(transitionMatrix, prMatrix + i, subPRMatrix + i);
 
             // if mapreduce terminates abnormally, quit immediately.
             if (status != normalTermination) {
+                /** TODO whether stopping mapreduce job when one of Mapreduce job terminates abnormally? */
                 break;
             }
 
@@ -58,6 +59,7 @@ public class Driver extends Configured implements Tool {
 
             // if mapreduce terminates abnormally, quit immediately.
             if (status != normalTermination) {
+                /** TODO whether stopping mapreduce job when one of Mapreduce job terminates abnormally? */
                 break;
             }
         }
