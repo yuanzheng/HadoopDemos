@@ -6,7 +6,8 @@
 
     <groupId>com.hadoop.mapreduce.demo</groupId>
     <artifactId>PageRank</artifactId>
-    <version>1.0</version>
+    <version>2.0</version>
+    <description>PageRank with the consideration of edge cases</description>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

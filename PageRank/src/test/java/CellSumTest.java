@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +73,9 @@ public class CellSumTest {
         double sum = probabilityA * pageRankA + probabilityD * pageRankD;
 
         reduceDriver.withInput(new Text("b"), values);
+
+        DecimalFormat df = new DecimalFormat("#.0000");
+        sum = Double.valueOf(df.format(sum));
         reduceDriver.withOutput(new Text("b"), new DoubleWritable(sum));
 
         try {
@@ -92,6 +96,8 @@ public class CellSumTest {
         String message1 = "b\t" + pageRankA * probabilityA;
         String message2 = "b\t" + pageRankD * probabilityD;
         double sum = probabilityA * pageRankA + probabilityD * pageRankD;
+        DecimalFormat df = new DecimalFormat("#.0000");
+        sum = Double.valueOf(df.format(sum));
 
         List<Pair<LongWritable, Text>> input = new ArrayList<Pair<LongWritable, Text>>();
         input.add(new Pair<LongWritable, Text>(new LongWritable(), new Text(message1)));

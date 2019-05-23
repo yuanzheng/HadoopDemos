@@ -6,6 +6,8 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -55,7 +57,8 @@ public class CellSum {
                 sum += each.get();
             }
 
-            //TODO Decimal format?
+            DecimalFormat df = new DecimalFormat("#.0000");
+            sum = Double.valueOf(df.format(sum));
 
             context.write(key, new DoubleWritable(sum));
 
