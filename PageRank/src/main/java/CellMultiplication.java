@@ -1,3 +1,6 @@
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -7,24 +10,20 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-/** Transition matrix cell * PR matrix cell
+/**
+ * Transition matrix cell * PR matrix cell
  */
 public class CellMultiplication {
 
 
-
-    /** Generate transition matrix cell
-     *
+    /**
+     * Generate transition matrix cell
      */
     public static class TransitionMapper extends Mapper<LongWritable, Text, Text, Text> {
 
         private static final Log LOG = LogFactory.getLog(TransitionMapper.class);
 
         /**
-         *
          * @param key
          * @param value
          * @param context <fromId, toId=probability>
@@ -60,16 +59,14 @@ public class CellMultiplication {
         }
     }
 
-    /** Get the page rank of each website
-     *
-     *
+    /**
+     * Get the page rank of each website
      */
     public static class PRMapper extends Mapper<LongWritable, Text, Text, Text> {
 
         private static final Log LOG = LogFactory.getLog(PRMapper.class);
 
         /**
-         *
          * @param key
          * @param value
          * @param context <websiteId, weight>
@@ -95,17 +92,26 @@ public class CellMultiplication {
         }
     }
 
-    /** Transition matrix cell * PR matrix cell
-     *
+    /**
+     * Transition matrix cell * PR matrix cell
      */
     public static class MultiplicationReducer extends Reducer<Text, Text, Text, Text> {
 
         private static final Log LOG = LogFactory.getLog(MultiplicationReducer.class);
 
+        private float beta; // By default, 0.15f the possibility to open a new site
+
+        @Override
+        public void setup(Context context) {
+            Configuration conf = context.getConfiguration();
+
+            beta = conf.getFloat("beta", 0.15f);
+
+        }
+
         /**
-         *
-         * @param key from website
-         * @param values to website probabilities and from website weight
+         * @param key     from website
+         * @param values  to website probabilities and from website weight
          * @param context <toId, probability * weightß>
          * @throws IOException
          * @throws InterruptedException
@@ -115,7 +121,6 @@ public class CellMultiplication {
                 throws IOException, InterruptedException {
 
             LOG.debug("Started MultiplicationReducer");
-
 
             //input key = fromPage value=<toPage=probability..., pageRank>
             //target: get the unit multiplication
@@ -137,7 +142,7 @@ public class CellMultiplication {
                 String[] data = each.split("=");
                 String to = data[0];
                 Double probability = Double.parseDouble(data[1]);
-                Double weight = probability * pr;
+                Double weight = probability * pr * (1 - beta);
 
                 context.write(new Text(to), new Text(String.valueOf(weight)));
             }

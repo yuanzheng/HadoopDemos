@@ -1,4 +1,5 @@
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -21,6 +22,7 @@ public class CellSum {
 
         private static final Log LOG = LogFactory.getLog(PassMapper.class);
 
+
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
             LOG.debug("Started PassMapper");
@@ -34,6 +36,48 @@ public class CellSum {
             context.write(new Text(pageAndWeight[0]), new DoubleWritable(Double.parseDouble(pageAndWeight[1])));
 
             LOG.debug("End PassMapper");
+        }
+    }
+
+    /**
+     * Get the page rank of each website
+     */
+    public static class PRBetaMapper extends Mapper<LongWritable, Text, Text, DoubleWritable> {
+
+        private static final Log LOG = LogFactory.getLog(PRBetaMapper.class);
+
+        private float beta = 0.15f;  // By default, the possibility to open a new site
+
+        @Override
+        public void setup(Context context) {
+            Configuration conf = context.getConfiguration();
+
+            beta = conf.getFloat("beta", 0.15f);
+        }
+
+        /**
+         * @param key
+         * @param value
+         * @param context <websiteId, weight>
+         * @throws IOException
+         * @throws InterruptedException
+         */
+        @Override
+        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+            LOG.debug("Started PRBetaMapper");
+
+
+            String[] keyValuePair = value.toString().trim().split("\t");
+            if (keyValuePair.length < 2) {
+                return;
+            }
+
+            String website = keyValuePair[0];
+            double weight = Double.parseDouble(keyValuePair[1]) * beta;
+
+            context.write(new Text(website), new DoubleWritable(weight));
+            LOG.debug("End PRBetaMapper");
+
         }
     }
 

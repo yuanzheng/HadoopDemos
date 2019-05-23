@@ -6,7 +6,7 @@
 
     <groupId>com.hadoop.mapreduce.demo</groupId>
     <artifactId>PageRank</artifactId>
-    <version>2.0</version>
+    <version>3.0</version>
     <description>PageRank with the consideration of edge cases</description>
     
     <properties>

@@ -5,6 +5,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.chain.Chain;
 import org.apache.hadoop.mapreduce.lib.chain.ChainMapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
@@ -121,7 +122,7 @@ public class Driver extends Configured implements Tool {
      * Sum up cell for each webpage.
      *
      * @param index  the tag of current iteration
-     * @param prMatrix
+     * @param prMatrix current PR matrix
      * @return
      * @throws ClassNotFoundException
      * @throws IOException
@@ -143,14 +144,19 @@ public class Driver extends Configured implements Tool {
         Job job = Job.getInstance(conf);
         job.setJarByClass(CellSum.class);
 
-        job.setMapperClass(CellSum.PassMapper.class);
+        ChainMapper.addMapper(job, CellSum.PassMapper.class, Object.class, Text.class, Text.class, DoubleWritable.class, conf);
+        ChainMapper.addMapper(job, CellSum.PRBetaMapper.class, Object.class, Text.class, Text.class, DoubleWritable.class, conf);
         job.setReducerClass(CellSum.SumReducer.class);
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(DoubleWritable.class);
 
-        /* Read PR matrix, and produce a new PR matrix file for next iteration. */
-        FileInputFormat.addInputPath(job, new Path(subPRMatrix));
+        /* Read input file from */
+        MultipleInputs.addInputPath(job, new Path(subPRMatrix), TextInputFormat.class, CellSum.PassMapper.class);
+        /* Read PR matrix, beta * PR */
+        MultipleInputs.addInputPath(job, new Path(prMatrix), TextInputFormat.class, CellSum.PRBetaMapper.class);
+
+        /* produce a new PR matrix file for next iteration. */
         FileOutputFormat.setOutputPath(job, new Path(prMatrix));
 
         return job.waitForCompletion(true) ? 0 : 1;
