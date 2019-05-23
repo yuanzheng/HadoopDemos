@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<configuration>
+    <property>
+        <name>firstMROutput</name>
+        <value>/output</value>
+        <description>The first mapreduce job's output, as well as the input of second MR job.</description>
+    </property>
+
+
+</configuration>

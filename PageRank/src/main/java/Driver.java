@@ -21,13 +21,14 @@ import java.io.IOException;
  */
 public class Driver extends Configured implements Tool {
 
+    private String subPRMatrix = "\\output";   // By Default. It's for the output of first MapReduce
 
     @Override
     public int run(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
 
-        if (args.length < 4) {
+        if (args.length < 3) {
             System.err.printf("Usage: hadoop jar PageRank-jar-with-dependencies.jar <transition directory> " +
-                    " <PR directory> <unit Multiplication directory> <times of convergence>" +
+                    " <PR directory> <times of convergence>" +
                             " [generic options]\n",
                     getClass().getSimpleName());
             ToolRunner.printGenericCommandUsage(System.err);
@@ -36,8 +37,8 @@ public class Driver extends Configured implements Tool {
 
         String transitionMatrix = args[0];
         String prMatrix = args[1];
-        String subPRMatrix = args[2];  // multiplication result directory, first mapreduce job's output
-        int count = Integer.parseInt(args[3]); //times of convergence
+        //String subPRMatrix = args[2];  //first mapreduce job's output
+        int count = Integer.parseInt(args[2]); //times of convergence
 
         final int normalTermination = 0;
         int status = normalTermination;
@@ -46,7 +47,7 @@ public class Driver extends Configured implements Tool {
         for (int i = 0; i < count; i++) {
 
             // first MapReduce job， prMatrix+i is the directory of each PRn, subPRMatrix + i is the output of first MR
-            status = cellMultiplicationJob(transitionMatrix, prMatrix + i, subPRMatrix + i);
+            status = cellMultiplicationJob(transitionMatrix, prMatrix + i, i);
 
             // if mapreduce terminates abnormally, quit immediately.
             if (status != normalTermination) {
@@ -55,7 +56,7 @@ public class Driver extends Configured implements Tool {
             }
 
             // second MapReduce job: prMatrix + (i+1) is the output of reducer. It is the input PR matrix in next iteration.
-            status = SumUpJob(subPRMatrix + i, prMatrix + (i+1));
+            status = SumUpJob(i, prMatrix + (i+1));
 
             // if mapreduce terminates abnormally, quit immediately.
             if (status != normalTermination) {
@@ -72,16 +73,24 @@ public class Driver extends Configured implements Tool {
      *
      * @param transitionMatrix
      * @param prMatrix
-     * @param subPRMatrix
+     * @param index the tag of current iteration
      * @return
      * @throws ClassNotFoundException
      * @throws IOException
      * @throws InterruptedException
      */
-    private int cellMultiplicationJob(String transitionMatrix, String prMatrix, String subPRMatrix)
+    private int cellMultiplicationJob(String transitionMatrix, String prMatrix, int index)
             throws ClassNotFoundException, IOException, InterruptedException {
 
         Configuration conf = new Configuration();
+        conf.addResource("reference.xml");
+
+        if (conf.get("firstMROutput") != null) {
+            // 自定义 property: the directory of multiplication result
+            subPRMatrix = conf.get("firstMROutput") + index;
+        } else {
+            subPRMatrix = subPRMatrix + index;
+        }
 
         Job job = Job.getInstance(conf);
         job.setJarByClass(CellMultiplication.class);
@@ -111,17 +120,25 @@ public class Driver extends Configured implements Tool {
     /**
      * Sum up cell for each webpage.
      *
-     * @param subPRMatrix
+     * @param index  the tag of current iteration
      * @param prMatrix
      * @return
      * @throws ClassNotFoundException
      * @throws IOException
      * @throws InterruptedException
      */
-    private int SumUpJob(String subPRMatrix, String prMatrix)
+    private int SumUpJob(int index, String prMatrix)
             throws ClassNotFoundException, IOException, InterruptedException {
 
         Configuration conf = new Configuration();
+        conf.addResource("reference.xml");
+
+        if (conf.get("firstMROutput") != null) {
+            // 自定义 property: the directory of multiplication result
+            subPRMatrix = conf.get("firstMROutput") + index;
+        } else {
+            subPRMatrix = subPRMatrix + index;
+        }
 
         Job job = Job.getInstance(conf);
         job.setJarByClass(CellSum.class);

@@ -19,9 +19,9 @@ hdfs dfs -put /root/src/PageRankData/prsmall.txt /pagerank0
 
 rm -r /root/src/PageRank_Output/
 
-i=3
+i=1
 # run jar
-hadoop jar /root/src/PageRank-1.0-jar-with-dependencies.jar /transition /pagerank /output $i
+hadoop jar /root/src/PageRank-1.0-jar-with-dependencies.jar /transition /pagerank $i
 
 echo -e "\nTest PageRank-1.0:"
 

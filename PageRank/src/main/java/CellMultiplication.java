@@ -7,15 +7,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /** Transition matrix cell * PR matrix cell
  */
 public class CellMultiplication {
 
+
+
     /** Generate transition matrix cell
      *
      */
     public static class TransitionMapper extends Mapper<LongWritable, Text, Text, Text> {
+
+        private static final Log LOG = LogFactory.getLog(TransitionMapper.class);
 
         /**
          *
@@ -27,6 +33,7 @@ public class CellMultiplication {
          */
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+            LOG.debug("Started TransitionMapper");
 
             String[] input = value.toString().trim().split("\t");
             if (input.length < 2) {
@@ -48,6 +55,8 @@ public class CellMultiplication {
                 context.write(new Text(fromPage), new Text(toValue));
             }
 
+            LOG.debug("End TransitionMapper");
+
         }
     }
 
@@ -56,6 +65,8 @@ public class CellMultiplication {
      *
      */
     public static class PRMapper extends Mapper<LongWritable, Text, Text, Text> {
+
+        private static final Log LOG = LogFactory.getLog(PRMapper.class);
 
         /**
          *
@@ -67,6 +78,8 @@ public class CellMultiplication {
          */
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+            LOG.debug("Started PRMapper");
+
 
             String[] keyValuePair = value.toString().trim().split("\t");
             if (keyValuePair.length < 2) {
@@ -77,6 +90,8 @@ public class CellMultiplication {
             double weight = Double.parseDouble(keyValuePair[1]);
 
             context.write(new Text(website), new Text(String.valueOf(weight)));
+            LOG.debug("End PRMapper");
+
         }
     }
 
@@ -84,6 +99,8 @@ public class CellMultiplication {
      *
      */
     public static class MultiplicationReducer extends Reducer<Text, Text, Text, Text> {
+
+        private static final Log LOG = LogFactory.getLog(MultiplicationReducer.class);
 
         /**
          *
@@ -96,6 +113,9 @@ public class CellMultiplication {
         @Override
         public void reduce(Text key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
+
+            LOG.debug("Started MultiplicationReducer");
+
 
             //input key = fromPage value=<toPage=probability..., pageRank>
             //target: get the unit multiplication
@@ -121,6 +141,9 @@ public class CellMultiplication {
 
                 context.write(new Text(to), new Text(String.valueOf(weight)));
             }
+
+            LOG.debug("End MultiplicationReducer");
+
         }
     }
 }
