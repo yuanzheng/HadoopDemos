@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class CellSumTest {
 
     //Specification of Mapper
     MapDriver<LongWritable, Text, Text, DoubleWritable> mapDriver;
+    MapDriver<LongWritable, Text, Text, DoubleWritable> prmapDriver;
 
     //Specification of Reduce
     ReduceDriver<Text, DoubleWritable, Text, DoubleWritable> reduceDriver;
@@ -29,8 +31,10 @@ public class CellSumTest {
     public void setUp() throws Exception {
         //Setup Mapper
         CellSum.PassMapper passMapper = new CellSum.PassMapper();
+        CellSum.PRBetaMapper prMapper = new CellSum.PRBetaMapper();
 
         mapDriver = MapDriver.newMapDriver(passMapper);
+        prmapDriver = MapDriver.newMapDriver(prMapper);
 
         //Setup Reduce
         CellSum.SumReducer reducer = new CellSum.SumReducer();
@@ -59,6 +63,27 @@ public class CellSumTest {
     }
 
     @Test
+    public void PRBetaMapperTest() throws IOException, InterruptedException {
+
+        String prMatrixRow1 = "a\t0.25";
+        float beta = 0.15f;
+
+        prmapDriver.withInput(new LongWritable(0), new Text(prMatrixRow1));
+
+        String[] keyValuePair = prMatrixRow1.toString().trim().split("\t");
+        double weight = Double.parseDouble(keyValuePair[1]) * beta;
+
+        prmapDriver.withOutput(new Text(keyValuePair[0]), new DoubleWritable(weight));
+
+        try {
+            prmapDriver.runTest();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void SumReducerTest() throws InterruptedException {
 
         double pageRankA = 0.25;
@@ -72,6 +97,9 @@ public class CellSumTest {
         double sum = probabilityA * pageRankA + probabilityD * pageRankD;
 
         reduceDriver.withInput(new Text("b"), values);
+
+        DecimalFormat df = new DecimalFormat("#.0000");
+        sum = Double.valueOf(df.format(sum));
         reduceDriver.withOutput(new Text("b"), new DoubleWritable(sum));
 
         try {
@@ -92,6 +120,8 @@ public class CellSumTest {
         String message1 = "b\t" + pageRankA * probabilityA;
         String message2 = "b\t" + pageRankD * probabilityD;
         double sum = probabilityA * pageRankA + probabilityD * pageRankD;
+        DecimalFormat df = new DecimalFormat("#.0000");
+        sum = Double.valueOf(df.format(sum));
 
         List<Pair<LongWritable, Text>> input = new ArrayList<Pair<LongWritable, Text>>();
         input.add(new Pair<LongWritable, Text>(new LongWritable(), new Text(message1)));
