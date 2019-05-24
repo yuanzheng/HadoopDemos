@@ -46,7 +46,7 @@ public class CellSum {
 
         private static final Log LOG = LogFactory.getLog(PRBetaMapper.class);
 
-        private float beta = 0.15f;  // By default, the possibility to open a new site
+        private float beta;  // By default, the possibility to open a new site
 
         @Override
         public void setup(Context context) {

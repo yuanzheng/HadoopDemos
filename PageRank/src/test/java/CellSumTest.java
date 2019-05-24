@@ -19,6 +19,7 @@ public class CellSumTest {
 
     //Specification of Mapper
     MapDriver<LongWritable, Text, Text, DoubleWritable> mapDriver;
+    MapDriver<LongWritable, Text, Text, DoubleWritable> prmapDriver;
 
     //Specification of Reduce
     ReduceDriver<Text, DoubleWritable, Text, DoubleWritable> reduceDriver;
@@ -30,8 +31,10 @@ public class CellSumTest {
     public void setUp() throws Exception {
         //Setup Mapper
         CellSum.PassMapper passMapper = new CellSum.PassMapper();
+        CellSum.PRBetaMapper prMapper = new CellSum.PRBetaMapper();
 
         mapDriver = MapDriver.newMapDriver(passMapper);
+        prmapDriver = MapDriver.newMapDriver(prMapper);
 
         //Setup Reduce
         CellSum.SumReducer reducer = new CellSum.SumReducer();
@@ -53,6 +56,27 @@ public class CellSumTest {
         mapDriver.withOutput(new Text(data[0]), new DoubleWritable(Double.parseDouble(data[1])));
         try {
             mapDriver.runTest();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void PRBetaMapperTest() throws IOException, InterruptedException {
+
+        String prMatrixRow1 = "a\t0.25";
+        float beta = 0.15f;
+
+        prmapDriver.withInput(new LongWritable(0), new Text(prMatrixRow1));
+
+        String[] keyValuePair = prMatrixRow1.toString().trim().split("\t");
+        double weight = Double.parseDouble(keyValuePair[1]) * beta;
+
+        prmapDriver.withOutput(new Text(keyValuePair[0]), new DoubleWritable(weight));
+
+        try {
+            prmapDriver.runTest();
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -48,7 +48,7 @@ public class Driver extends Configured implements Tool {
         for (int i = 0; i < count; i++) {
 
             // first MapReduce job， prMatrix+i is the directory of each PRn, subPRMatrix + i is the output of first MR
-            status = cellMultiplicationJob(transitionMatrix, prMatrix + i, i);
+            status = cellMultiplicationJob(transitionMatrix, prMatrix, i);
 
             // if mapreduce terminates abnormally, quit immediately.
             if (status != normalTermination) {
@@ -56,8 +56,8 @@ public class Driver extends Configured implements Tool {
                 break;
             }
 
-            // second MapReduce job: prMatrix + (i+1) is the output of reducer. It is the input PR matrix in next iteration.
-            status = SumUpJob(i, prMatrix + (i+1));
+            // second MapReduce job: prMatrix is the directory prefix of pr beta Map. For example: SumUpJob(0,/pagerank)
+            status = SumUpJob(i, prMatrix);
 
             // if mapreduce terminates abnormally, quit immediately.
             if (status != normalTermination) {
@@ -72,8 +72,8 @@ public class Driver extends Configured implements Tool {
     /**
      * Transition Matrix cell * PR Matrix cell.
      *
-     * @param transitionMatrix
-     * @param prMatrix
+     * @param transitionMatrix transition data directory
+     * @param prMatrix the directory prefix of PageRank, for example: /PageRank, however actually is /PageRank0, /PageRank1 ...
      * @param index the tag of current iteration
      * @return
      * @throws ClassNotFoundException
@@ -86,6 +86,7 @@ public class Driver extends Configured implements Tool {
         Configuration conf = new Configuration();
         conf.addResource("reference.xml");
 
+        // the output of first MapReduce should be stored in subPRMatrix, for example /Output0, /Output1 ...
         if (conf.get("firstMROutput") != null) {
             // 自定义 property: the directory of multiplication result
             subPRMatrix = conf.get("firstMROutput") + index;
@@ -107,11 +108,11 @@ public class Driver extends Configured implements Tool {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        /* Read input file from */
+        /* Read input file from, for example: /transition and /pagerank0 */
         MultipleInputs.addInputPath(job, new Path(transitionMatrix), TextInputFormat.class, CellMultiplication.TransitionMapper.class);
-        MultipleInputs.addInputPath(job, new Path(prMatrix), TextInputFormat.class, CellMultiplication.PRMapper.class);
+        MultipleInputs.addInputPath(job, new Path(prMatrix + index), TextInputFormat.class, CellMultiplication.PRMapper.class);
 
-        /* Indicate a file directory for subPR */
+        /* Indicate a file directory for subPR, for example: /output0 */
         FileOutputFormat.setOutputPath(job, new Path(subPRMatrix));
 
         return job.waitForCompletion(true) ? 0 : 1;
@@ -134,6 +135,7 @@ public class Driver extends Configured implements Tool {
         Configuration conf = new Configuration();
         conf.addResource("reference.xml");
 
+        // Read the output of first MapReduce job, for example: /Output0, /Output1 ...
         if (conf.get("firstMROutput") != null) {
             // 自定义 property: the directory of multiplication result
             subPRMatrix = conf.get("firstMROutput") + index;
@@ -144,20 +146,24 @@ public class Driver extends Configured implements Tool {
         Job job = Job.getInstance(conf);
         job.setJarByClass(CellSum.class);
 
-        ChainMapper.addMapper(job, CellSum.PassMapper.class, Object.class, Text.class, Text.class, DoubleWritable.class, conf);
-        ChainMapper.addMapper(job, CellSum.PRBetaMapper.class, Object.class, Text.class, Text.class, DoubleWritable.class, conf);
-        job.setReducerClass(CellSum.SumReducer.class);
+        ChainMapper.addMapper(job, CellSum.PassMapper.class,
+                Object.class, Text.class, Text.class, DoubleWritable.class, conf);
 
+        // Second Mapper's input value should match first Mapper's output value
+        ChainMapper.addMapper(job, CellSum.PRBetaMapper.class,
+                Text.class, DoubleWritable.class, Text.class, DoubleWritable.class, conf);
+
+        job.setReducerClass(CellSum.SumReducer.class);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(DoubleWritable.class);
 
-        /* Read input file from */
+        /* Read input file from, for example /output0 */
         MultipleInputs.addInputPath(job, new Path(subPRMatrix), TextInputFormat.class, CellSum.PassMapper.class);
-        /* Read PR matrix, beta * PR */
-        MultipleInputs.addInputPath(job, new Path(prMatrix), TextInputFormat.class, CellSum.PRBetaMapper.class);
+        /* Read PR matrix, beta * PR , for example for /pagerank0 */
+        MultipleInputs.addInputPath(job, new Path(prMatrix + index), TextInputFormat.class, CellSum.PRBetaMapper.class);
 
-        /* produce a new PR matrix file for next iteration. */
-        FileOutputFormat.setOutputPath(job, new Path(prMatrix));
+        /* produce a new PR matrix file for next iteration. for example: /pagerank1*/
+        FileOutputFormat.setOutputPath(job, new Path(prMatrix + (index + 1)));
 
         return job.waitForCompletion(true) ? 0 : 1;
     }

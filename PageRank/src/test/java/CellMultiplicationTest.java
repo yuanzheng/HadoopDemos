@@ -113,6 +113,7 @@ public class CellMultiplicationTest {
         */
         double probability = (double) 1/3;
         double pagerank = 0.25;
+        float beta = 0.15f;
 
         List<Text> values = new ArrayList<Text>();
         values.add(new Text("b=" + probability));
@@ -120,10 +121,14 @@ public class CellMultiplicationTest {
         values.add(new Text("d=" + probability));
         values.add(new Text(String.valueOf(pagerank)));
 
+        double weight = probability * pagerank * (1-beta);
+
         List<Pair<Text, Text>> output = new ArrayList<Pair<Text, Text>>();
-        output.add(new Pair<Text, Text>(new Text("b"), new Text(String.valueOf(probability * pagerank))));
-        output.add(new Pair<Text, Text>(new Text("c"), new Text(String.valueOf(probability * pagerank))));
-        output.add(new Pair<Text, Text>(new Text("d"), new Text(String.valueOf(probability * pagerank))));
+        output.add(new Pair<Text, Text>(new Text("b"), new Text(String.valueOf(weight))));
+        output.add(new Pair<Text, Text>(new Text("c"), new Text(String.valueOf(weight))));
+        output.add(new Pair<Text, Text>(new Text("d"), new Text(String.valueOf(weight))));
+
+        //System.out.println("Test: " +probability + " * " + pagerank + " * (1 - " + beta + ")");
 
         reduceDriver.withInput(new Text("a"), values);
 

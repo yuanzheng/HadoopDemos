@@ -128,7 +128,7 @@ public class CellMultiplication {
             double pr = 0;  // last element is the pr
 
             for (Text value : values) {
-                // either b=0.3, or 0.25
+
                 String probability = value.toString().trim();
                 if (probability.contains("=")) {
                     transitionUnit.add(probability);
