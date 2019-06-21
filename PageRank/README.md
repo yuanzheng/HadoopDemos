@@ -11,6 +11,7 @@ And it includes the multiplication of two large matrices with MapReduce.
 
 Reference pagers:
 
+- [谷歌背后的数学](https://www.changhai.org/articles/technology/misc/google_math.php)
 - [The Anatomy of a Large-Scale Hypertextual Web Search Engine](http://infolab.stanford.edu/~backrub/google.html)
 - [The PageRank Citation Ranking: Bringing Order to the Web](http://ilpubs.stanford.edu:8090/422/1/1999-66.pdf)
 - [Convergence Analysis of an Improved PageRank Algorithm](https://projects.ncsu.edu/crsc/reports/ftp/pdf/crsc-tr04-02.pdf) 
