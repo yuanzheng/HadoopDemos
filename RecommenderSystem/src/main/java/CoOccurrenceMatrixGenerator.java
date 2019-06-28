@@ -1,6 +1,7 @@
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -10,12 +11,14 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 
 
 /**
  *
  */
-public class CoOccurrenceMatrixGenerator {
+public class CoOccurrenceMatrixGenerator extends Configured implements Tool {
 
     public static class MatrixGeneratorMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
@@ -65,7 +68,18 @@ public class CoOccurrenceMatrixGenerator {
         }
     }
 
-    public static void main(String[] args) throws Exception{
+    @Override
+    public int run(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
+
+        if (args.length < 2) {
+            System.err.printf("Usage: hadoop jar RecommenderSystem-jar-with-dependencies.jar <input files> " +
+                            "<UserMovieListOutput Directory> <Co-OccurrenceMatrixOutput Direcory> " +
+                            "<Normalization Directory> <> <> [generic options]\n" +
+                            "Here, the <UserMovieListOutput Directory> and <Co-OccurrenceMatrixOutput Direcory> are missing!\n",
+                    getClass().getSimpleName());
+            ToolRunner.printGenericCommandUsage(System.err);
+            return -1;
+        }
 
         Configuration conf = new Configuration();
 
@@ -85,7 +99,16 @@ public class CoOccurrenceMatrixGenerator {
         TextInputFormat.setInputPaths(job, new Path(args[0]));
         TextOutputFormat.setOutputPath(job, new Path(args[1]));
 
-        job.waitForCompletion(true);
+        return job.waitForCompletion(true)? 0 : 1;
+    }
 
+    public static void main(String[] args) throws Exception{
+
+        int exitCode = ToolRunner.run(new DataDividerByUser(), args);
+
+        if (exitCode != 0) {
+            System.err.printf("Failed, Co-Occurrence Matrix Generator causes the termination\n");
+            System.exit(exitCode);
+        }
     }
 }
