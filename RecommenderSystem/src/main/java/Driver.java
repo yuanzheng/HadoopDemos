@@ -1,7 +1,7 @@
 public class Driver {
 
 
-    public static void main (String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         DataDividerByUser dataDividerByUser = new DataDividerByUser();
         /*
@@ -21,7 +21,7 @@ public class Driver {
         //String[] path2 = {userMovieListOutputDir, coOccurrenceMatrixOutputDir};
         //String[] path3 = {coOccurrenceMatrixOutputDir, normalizationDir};
 
-        dataDividerByUser.main(path1);
+        DataDividerByUser.main(path1);
 
     }
 

@@ -1,5 +1,3 @@
-import java.io.IOException;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -14,57 +12,21 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
+import java.io.IOException;
+
 
 /**
  *
  */
 public class CoOccurrenceMatrixGenerator extends Configured implements Tool {
 
-    public static class MatrixGeneratorMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+    public static void main(String[] args) throws Exception {
 
-        /**
-         *
-         * @param key
-         * @param value   user_id\tmovie_id:rating,movie_id:rating,....
-         * @param context movieA:movieB 1
-         * @throws IOException
-         * @throws InterruptedException
-         */
-        @Override
-        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+        int exitCode = ToolRunner.run(new DataDividerByUser(), args);
 
-            String[] inputData = value.toString().trim().split("\t");
-            if (inputData.length < 2) {
-                return;
-            }
-
-            String movies = inputData[1];
-            String[] movieAndRating = movies.trim().split(",");
-
-            for (int i=0; i<movieAndRating.length; i++) {
-                String movieA = movieAndRating[i].trim().split(":")[0];
-                for (int j=0; j<movieAndRating.length; j++) {
-                    String movieB = movieAndRating[j].trim().split(":")[0];
-
-                    context.write(new Text(movieA + ":" + movieB), new IntWritable(1));
-                }
-            }
-
-        }
-    }
-
-    public static class MatrixGeneratorReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
-
-        @Override
-        public void reduce(Text key, Iterable<IntWritable> values, Context context)
-                throws IOException, InterruptedException {
-
-            int sum = 0;
-            for (IntWritable value : values) {
-                sum += value.get();
-            }
-
-            context.write(key, new IntWritable(sum));
+        if (exitCode != 0) {
+            System.err.printf("Failed, Co-Occurrence Matrix Generator causes the termination\n");
+            System.exit(exitCode);
         }
     }
 
@@ -99,16 +61,53 @@ public class CoOccurrenceMatrixGenerator extends Configured implements Tool {
         TextInputFormat.setInputPaths(job, new Path(args[0]));
         TextOutputFormat.setOutputPath(job, new Path(args[1]));
 
-        return job.waitForCompletion(true)? 0 : 1;
+        return job.waitForCompletion(true) ? 0 : 1;
     }
 
-    public static void main(String[] args) throws Exception{
+    public static class MatrixGeneratorMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
 
-        int exitCode = ToolRunner.run(new DataDividerByUser(), args);
+        /**
+         * @param key
+         * @param value   user_id\tmovie_id:rating,movie_id:rating,....
+         * @param context movieA:movieB 1
+         * @throws IOException
+         * @throws InterruptedException
+         */
+        @Override
+        public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
-        if (exitCode != 0) {
-            System.err.printf("Failed, Co-Occurrence Matrix Generator causes the termination\n");
-            System.exit(exitCode);
+            String[] inputData = value.toString().trim().split("\t");
+            if (inputData.length < 2) {
+                return;
+            }
+
+            String movies = inputData[1];
+            String[] movieAndRating = movies.trim().split(",");
+
+            for (int i = 0; i < movieAndRating.length; i++) {
+                String movieA = movieAndRating[i].trim().split(":")[0];
+                for (int j = 0; j < movieAndRating.length; j++) {
+                    String movieB = movieAndRating[j].trim().split(":")[0];
+
+                    context.write(new Text(movieA + ":" + movieB), new IntWritable(1));
+                }
+            }
+
+        }
+    }
+
+    public static class MatrixGeneratorReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
+
+        @Override
+        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+                throws IOException, InterruptedException {
+
+            int sum = 0;
+            for (IntWritable value : values) {
+                sum += value.get();
+            }
+
+            context.write(key, new IntWritable(sum));
         }
     }
 }
