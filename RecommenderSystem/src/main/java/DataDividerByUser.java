@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -11,13 +12,15 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 
 /** Step 1, pre-processing data
  *  input format is User_id, Movie_id, Rating
  *  output format is User_id, List<Movie_id : Rating>
  *
  */
-public class DataDividerByUser {
+public class DataDividerByUser extends Configured implements Tool {
 
     /** Read data from Input file, in which involves user_id, movie_id and rating.
      *  Pre-process data in a new format, in which involve user_id and movie_id:rating.
@@ -64,12 +67,23 @@ public class DataDividerByUser {
         }
     }
 
+    @Override
+    public int run(String[] args) throws ClassNotFoundException, IOException, InterruptedException {
 
-    public static void main(String[] args) throws Exception {
+        if (args.length < 2) {
+            System.err.printf("Usage: hadoop jar RecommenderSystem-jar-with-dependencies.jar <input files> " +
+                            "<UserMovieListOutput Directory> <Co-OccurrenceMatrixOutput Direcory> " +
+                            "<Normalization Directory> <> <> [generic options]\n" +
+                            "Here, the <input file> and <UserMovieListOutput Directory> are missing!\n",
+                    getClass().getSimpleName());
+            ToolRunner.printGenericCommandUsage(System.err);
+            return -1;
+        }
 
         Configuration conf = new Configuration();
-
         Job job = Job.getInstance(conf);
+
+        job.setJobName("Data Divide By User");
         job.setJarByClass(DataDividerByUser.class);
 
         job.setMapperClass(DataDividerMapper.class);
@@ -84,7 +98,18 @@ public class DataDividerByUser {
         TextInputFormat.setInputPaths(job, new Path(args[0]));
         TextOutputFormat.setOutputPath(job, new Path(args[1]));
 
-        job.waitForCompletion(true);
+        return job.waitForCompletion(true)? 0:1;
+
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        int exitCode = ToolRunner.run(new DataDividerByUser(), args);
+
+        if (exitCode != 0) {
+            System.err.printf("Failed, DataDivideByUser causes the termination\n");
+            System.exit(exitCode);
+        }
     }
 
 }
