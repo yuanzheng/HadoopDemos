@@ -22,7 +22,7 @@ public class CoOccurrenceMatrixGenerator extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception {
 
-        int exitCode = ToolRunner.run(new DataDividerByUser(), args);
+        int exitCode = ToolRunner.run(new CoOccurrenceMatrixGenerator(), args);
 
         if (exitCode != 0) {
             System.err.printf("Failed, Co-Occurrence Matrix Generator causes the termination\n");
