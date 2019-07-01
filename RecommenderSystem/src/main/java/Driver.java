@@ -13,14 +13,15 @@ public class Driver {
         String rawInput = args[0];
         String userMovieListOutputDir = args[1];
         String coOccurrenceMatrixOutputDir = args[2];
-        //String normalizationDir = args[3];
+        String normalizationDir = args[3];
 
         String[] path1 = {rawInput, userMovieListOutputDir};
         String[] path2 = {userMovieListOutputDir, coOccurrenceMatrixOutputDir};
-        //String[] path3 = {coOccurrenceMatrixOutputDir, normalizationDir};
+        String[] path3 = {coOccurrenceMatrixOutputDir, normalizationDir};
 
         DataDividerByUser.main(path1);
         CoOccurrenceMatrixGenerator.main(path2);
+        Normalization.main(path3);
 
     }
 
