@@ -1,4 +1,3 @@
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
@@ -11,8 +10,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 public class NormalizationTest {
 
@@ -65,8 +62,8 @@ public class NormalizationTest {
         values.add(new Text(inputValue2));
         reducer.withInput(new Text(inputKey), values);
 
-        double average1 = (double) (8/(8+9));
-        double average2 = (double) (9/(8+9));
+        double average1 = (double) (8 / (8 + 9));
+        double average2 = (double) (9 / (8 + 9));
         List<Pair<Text, Text>> output = new ArrayList<>();
         output.add(new Pair<>(new Text("1"), new Text("100=" + average1)));
         output.add(new Pair<>(new Text("10"), new Text("100=" + average2)));
@@ -92,15 +89,10 @@ public class NormalizationTest {
         inputs.add(new Pair<>(new LongWritable(2), new Text(inputValue3)));
         mapReduceDriver.addAll(inputs);
 
-        String outputKey = "100";
-        String outputValue1 = "1=8";
-        String outputValue2 = "10=9";
-        String outputValue3 = "10=9";
-
         int sum = 17 + 13 + 12;
-        double average1 = (double) (17/sum);
-        double average2 = (double) (13/sum);
-        double average3 = (double) (18/sum);
+        double average1 = (double) (17 / sum);
+        double average2 = (double) (13 / sum);
+        double average3 = (double) (18 / sum);
         List<Pair<Text, Text>> output = new ArrayList<>();
         output.add(new Pair<>(new Text("16"), new Text("100=" + average1)));
         output.add(new Pair<>(new Text("17"), new Text("100=" + average2)));

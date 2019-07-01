@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/** The relations in the Co-Occurrence matrix should be re-evaluated.
- *
+/**
+ * The relations in the Co-Occurrence matrix should be re-evaluated.
  */
 public class Normalization extends Configured implements Tool {
 
@@ -88,12 +88,13 @@ public class Normalization extends Configured implements Tool {
 
     public static class NormalizeReducer extends Reducer<Text, Text, Text, Text> {
 
-        /** Compute the average value of each relation.
+        /**
+         * Compute the average value of each relation.
          * The matrix cell in the same row are collected, however the key in the output should be the column
          *
-         * @param key   the row
-         * @param values   cells in the same row are gethered together
-         * @param context  the key in the output is the column
+         * @param key     the row
+         * @param values  cells in the same row are gethered together
+         * @param context the key in the output is the column
          * @throws IOException
          * @throws InterruptedException
          */
