@@ -62,8 +62,9 @@ public class NormalizationTest {
         values.add(new Text(inputValue2));
         reducer.withInput(new Text(inputKey), values);
 
-        double average1 = (double) (8 / (8 + 9));
-        double average2 = (double) (9 / (8 + 9));
+        int sum = 8 + 9;
+        double average1 = (double) 8 / sum;
+        double average2 = (double) 9 / sum;
         List<Pair<Text, Text>> output = new ArrayList<>();
         output.add(new Pair<>(new Text("1"), new Text("100=" + average1)));
         output.add(new Pair<>(new Text("10"), new Text("100=" + average2)));
@@ -90,9 +91,9 @@ public class NormalizationTest {
         mapReduceDriver.addAll(inputs);
 
         int sum = 17 + 13 + 12;
-        double average1 = (double) (17 / sum);
-        double average2 = (double) (13 / sum);
-        double average3 = (double) (18 / sum);
+        double average1 = (double) 17 / sum;
+        double average2 = (double) 13 / sum;
+        double average3 = (double) 12 / sum;
         List<Pair<Text, Text>> output = new ArrayList<>();
         output.add(new Pair<>(new Text("16"), new Text("100=" + average1)));
         output.add(new Pair<>(new Text("17"), new Text("100=" + average2)));

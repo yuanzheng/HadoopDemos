@@ -12,6 +12,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,7 +94,7 @@ public class Normalization extends Configured implements Tool {
          * The matrix cell in the same row are collected, however the key in the output should be the column
          *
          * @param key     the row
-         * @param values  cells in the same row are gethered together
+         * @param values  cells in the same row are gathered together
          * @param context the key in the output is the column
          * @throws IOException
          * @throws InterruptedException
@@ -119,9 +120,9 @@ public class Normalization extends Configured implements Tool {
             for (Map.Entry<String, Integer> entry : cache.entrySet()) {
                 String outputKey = entry.getKey();
                 int relation = entry.getValue();
-                double normalized = (double) (relation / sum);
+                double normalized = (double) relation / sum;
                 String outputValue = key.toString() + "=" + normalized;
-
+                
                 context.write(new Text(outputKey), new Text(outputValue));
             }
         }
