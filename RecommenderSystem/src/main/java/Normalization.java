@@ -12,6 +12,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /** The relations in the Co-Occurrence matrix should be re-evaluated.
  *
@@ -99,21 +101,23 @@ public class Normalization extends Configured implements Tool {
         public void reduce(Text key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
 
+            // a HashMap is used here because "Iterable" can be used once!
+            Map<String, Integer> cache = new HashMap<>();
+
             // sum up all relations
             int sum = 0;
             for (Text value : values) {
                 String[] movie = value.toString().trim().split("=");
-                String relation = movie[1];
-                sum += Integer.parseInt(relation);
+                int relation = Integer.parseInt(movie[1]);
+                sum += relation;
+
+                cache.put(movie[0], relation);
             }
 
-            // TODO a HashMap may be used here to ignore the duplicated computation
-
             // compute the average
-            for (Text value : values) {
-                String[] movie = value.toString().trim().split("=");
-                String outputKey = movie[0];
-                int relation = Integer.parseInt(movie[1]);
+            for (Map.Entry<String, Integer> entry : cache.entrySet()) {
+                String outputKey = entry.getKey();
+                int relation = entry.getValue();
                 double normalized = (double) (relation / sum);
                 String outputValue = key.toString() + "=" + normalized;
 
