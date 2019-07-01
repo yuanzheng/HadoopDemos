@@ -122,7 +122,7 @@ public class Normalization extends Configured implements Tool {
                 int relation = entry.getValue();
                 double normalized = (double) relation / sum;
                 String outputValue = key.toString() + "=" + normalized;
-                
+
                 context.write(new Text(outputKey), new Text(outputValue));
             }
         }
