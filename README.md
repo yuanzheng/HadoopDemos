@@ -13,8 +13,19 @@ Implement n-gram model to predict following possible phrases for the current inp
 Based on the basic theory behind PageRank algorithm, I implemented PageRank with MapReduce.
 
 ### Recommender System ###
-[TODO]
+This project applies "Item Collaborative Filtering (Item CF) algorithm on Netflix data to calculate possible rating score on which user may rates.
 
+### Running and Testing Environment ###
+MacOS 10.14 + Docker + Hadoop 2.7.2 + MySQL
+Memory allocated to docker is 6GB
+4 CPUs
+ 
+One master container and two slave containers
+
+### Unit Test ###
+Apache MRUnit ™ is chosen to build unit test Apache Hadoop map reduce jobs
+
+Here, in MRUnit test artifacts, using Classifier as hadoop2 has been chosen, because testing and running environment of all projects are in Hadoop 2 version.
 
 ### 基于docker搭建Hadoop集群 ###
 从dockerhub上下载用于搭建集群的镜像
