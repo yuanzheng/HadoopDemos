@@ -36,7 +36,7 @@ public class MatrixMultiplication extends Configured implements Tool {
 
         if (args.length < 2) {
             System.err.printf("Usage: hadoop jar RecommenderSystem-jar-with-dependencies.jar <input files> " +
-                            "<UserMovieListOutput Directory> <Co-OccurrenceMatrixOutput Direcory> " +
+                            "<UserMovieListOutput Directory> <Co-OccurrenceMatrixOutput Directory> " +
                             "<Normalization Directory> <Multiplication Directory> <> [generic options]\n" +
                             "Here, the <input file> and <MatrixMultiplication Output Directory> are missing!\n",
                     getClass().getSimpleName());
@@ -51,7 +51,7 @@ public class MatrixMultiplication extends Configured implements Tool {
         job.setJarByClass(MatrixMultiplication.class);
 
         ChainMapper.addMapper(job, CooccurrenceMapper.class, LongWritable.class, Text.class, Text.class, Text.class, conf);
-        ChainMapper.addMapper(job, RatingMapper.class, LongWritable.class, Text.class, Text.class, Text.class, conf);
+        ChainMapper.addMapper(job, RatingMapper.class, Text.class, Text.class, Text.class, Text.class, conf);
 
         job.setMapperClass(CooccurrenceMapper.class);
         job.setMapperClass(RatingMapper.class);
@@ -81,6 +81,7 @@ public class MatrixMultiplication extends Configured implements Tool {
 
             //input: movieB \t movieA=relation
             String[] input = value.toString().trim().split("\t");
+
             if (input.length < 2) {
                 return;
             }
