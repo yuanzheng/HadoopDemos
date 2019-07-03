@@ -55,3 +55,7 @@ pom.xml.next
 release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
+
+## Unit test
+RecommenderSystem/test/rawData/output
+RecommenderSystem/test/multiplication/output
