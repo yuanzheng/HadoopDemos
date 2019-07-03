@@ -44,7 +44,7 @@ public class MatrixMultiplication extends Configured implements Tool {
             return -1;
         }
 
-        Configuration conf = new Configuration();
+        Configuration conf = getConf();
 
         Job job = Job.getInstance(conf);
         job.setJobName("Matrix Multiplication MapReduce Job");

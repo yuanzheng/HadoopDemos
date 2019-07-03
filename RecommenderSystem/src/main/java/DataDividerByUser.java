@@ -45,7 +45,7 @@ public class DataDividerByUser extends Configured implements Tool {
             return -1;
         }
 
-        Configuration conf = new Configuration();
+        Configuration conf = getConf();
         Job job = Job.getInstance(conf);
 
         job.setJobName("Data Divide By User");

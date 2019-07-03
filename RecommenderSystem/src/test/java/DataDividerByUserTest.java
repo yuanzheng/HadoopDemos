@@ -1,19 +1,33 @@
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FileUtil;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapred.OutputLogFilter;
+
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mrunit.mapreduce.MapDriver;
 import org.apache.hadoop.mrunit.mapreduce.MapReduceDriver;
 import org.apache.hadoop.mrunit.mapreduce.ReduceDriver;
-import org.apache.hadoop.io.Text;
-
 import org.apache.hadoop.mrunit.types.Pair;
+
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+
 
 public class DataDividerByUserTest {
 
@@ -103,6 +117,62 @@ public class DataDividerByUserTest {
             e.printStackTrace();
         }
 
+    }
 
+    @Test
+    public void testDriver() {
+
+        Configuration conf = new Configuration();
+        conf.set("fs.defaultFS", "file:///");
+        conf.set("mapreduce.framework.name", "local");
+        conf.setInt("mapreduce.task.io.sort.mb", 1);
+        Path rawInput = new Path("test/rawData/input");
+        Path output = new Path("test/rawData/output");
+        Path expectedOutput = new Path("test/rawData/expected");
+
+        try {
+            FileSystem fs = FileSystem.getLocal(conf);
+            fs.delete(output, true); // delete old output
+            DataDividerByUser driver = new DataDividerByUser();
+            driver.setConf(conf);
+            int exitCode = driver.run(new String[]{rawInput.toString(), output.toString()});
+
+            assertThat(exitCode, is(0));
+
+            checkOutput(conf, output, expectedOutput);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void checkOutput(Configuration conf, Path output, Path expectedOutput) throws IOException {
+        FileSystem fs = FileSystem.getLocal(conf);
+        Path[] outputFiles = FileUtil.stat2Paths(fs.listStatus(output, new OutputLogFilter()));
+        Path[] expectedFiles = FileUtil.stat2Paths(fs.listStatus(expectedOutput, new OutputLogFilter()));
+        assertThat(outputFiles.length, is(2));
+
+        BufferedReader actual = asBufferedReader(fs.open(outputFiles[0]));
+        BufferedReader expected = asBufferedReader(fs.open(expectedFiles[0]));
+        String expectedLine;
+        String actualLine;
+        while ((expectedLine = expected.readLine()) != null && (actualLine = actual.readLine()) != null) {
+            // 4 spaces !!!
+            actualLine = actualLine.replaceAll("\t", "    ");
+
+            assertThat(actualLine, is(expectedLine));
+        }
+        assertThat(actual.readLine(), nullValue());
+        assertThat(expected.readLine(), nullValue());
+        actual.close();
+        expected.close();
+
+    }
+
+    private BufferedReader asBufferedReader(InputStream in) throws IOException {
+        return new BufferedReader(new InputStreamReader(in));
     }
 }
