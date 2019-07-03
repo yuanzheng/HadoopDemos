@@ -8,19 +8,19 @@ public class Driver {
         String coOccurrenceMatrixOutputDir = args[2];
         String normalizationDir = args[3];
         String multiplicationDir = args[4];
-//        String sumDir = args[5];
+        String sumDir = args[5];
 
         String[] path1 = {rawInput, userMovieListOutputDir};
         String[] path2 = {userMovieListOutputDir, coOccurrenceMatrixOutputDir};
         String[] path3 = {coOccurrenceMatrixOutputDir, normalizationDir};
         String[] path4 = {normalizationDir, rawInput, multiplicationDir};
-//        String[] path5 = {multiplicationDir, sumDir};
+        String[] path5 = {multiplicationDir, sumDir};
 
         DataDividerByUser.main(path1);
         CoOccurrenceMatrixGenerator.main(path2);
         Normalization.main(path3);
         MatrixMultiplication.main(path4);
-//        CellSum.main(path5);
+        CellSum.main(path5);
 
     }
 
