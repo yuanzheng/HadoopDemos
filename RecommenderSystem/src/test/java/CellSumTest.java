@@ -2,7 +2,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.DoubleWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -14,7 +13,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
@@ -136,7 +134,7 @@ public class CellSumTest {
                 assertThat(sum.containsKey(each.getFirst().toString()), is(Boolean.TRUE));
                 // the actual key and value pairs matches the expects'
                 assertThat(each.getSecond().get(), is(sum.get(each.getFirst().toString())));
-                System.out.println("debug actual result: " + each.getFirst().toString() + ":" + sum.get(each.getFirst().toString()));
+                //System.out.println("debug actual result: " + each.getFirst().toString() + ":" + sum.get(each.getFirst().toString()));
             }
 
         } catch (IOException e) {
