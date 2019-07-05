@@ -8,8 +8,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.OutputLogFilter;
-
+import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -153,18 +152,17 @@ public class DataDividerByUserTest {
         FileSystem fs = FileSystem.getLocal(conf);
         Path[] outputFiles = FileUtil.stat2Paths(fs.listStatus(output, new OutputLogFilter()));
         Path[] expectedFiles = FileUtil.stat2Paths(fs.listStatus(expectedOutput, new OutputLogFilter()));
-        assertThat(outputFiles.length, is(2));
+        assertThat(outputFiles.length, is(1));
 
         BufferedReader actual = asBufferedReader(fs.open(outputFiles[0]));
         BufferedReader expected = asBufferedReader(fs.open(expectedFiles[0]));
         String expectedLine;
         String actualLine;
         while ((expectedLine = expected.readLine()) != null && (actualLine = actual.readLine()) != null) {
-            // 4 spaces !!!
-            actualLine = actualLine.replaceAll("\t", "    ");
-
             assertThat(actualLine, is(expectedLine));
         }
+
+        //String tmp ="2\t1002:4.0";   cannnot use 'tab' in the .txt file, '\t' should be used in data and copy paste to .txt
         assertThat(actual.readLine(), nullValue());
         assertThat(expected.readLine(), nullValue());
         actual.close();
@@ -174,5 +172,11 @@ public class DataDividerByUserTest {
 
     private BufferedReader asBufferedReader(InputStream in) throws IOException {
         return new BufferedReader(new InputStreamReader(in));
+    }
+
+    public static class OutputLogFilter implements PathFilter {
+        public boolean accept(Path path) {
+            return !path.getName().startsWith("_");
+        }
     }
 }
