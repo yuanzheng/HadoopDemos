@@ -19,7 +19,7 @@ public class CellSum extends Configured implements Tool {
 
     public static void main(String[] args) throws Exception {
 
-        int exitCode = ToolRunner.run(new MatrixMultiplication(), args);
+        int exitCode = ToolRunner.run(new CellSum(), args);
 
         if (exitCode != 0) {
             System.err.printf("Failed, CellSum causes the termination\n");
