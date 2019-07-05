@@ -3,10 +3,6 @@ public class Driver {
 
     public static void main(String[] args) throws Exception {
 
-        DataDividerByUser dataDividerByUser = new DataDividerByUser();
-        CoOccurrenceMatrixGenerator coOccurrenceMatrixGenerator = new CoOccurrenceMatrixGenerator();
-        //Normalization normalization = new Normalization();
-
         String rawInput = args[0];
         String userMovieListOutputDir = args[1];
         String coOccurrenceMatrixOutputDir = args[2];
@@ -24,8 +20,7 @@ public class Driver {
         CoOccurrenceMatrixGenerator.main(path2);
         Normalization.main(path3);
         MatrixMultiplication.main(path4);
-
-        /* TODO Multiplication and Sum */
+        CellSum.main(path5);
 
     }
 

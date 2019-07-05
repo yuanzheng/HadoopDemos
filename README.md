@@ -23,7 +23,7 @@ Memory allocated to docker is 6GB
 One master container and two slave containers
 
 ### Unit Test ###
-Apache MRUnit ™ is chosen to build unit test Apache Hadoop map reduce jobs
+Apache MRUnit ™ is chosen to build unit test for Hadoop map reduce jobs. For running unit test, we use junit. The hadoop-minicluster library contains the “mini-” clusters that are for testing with Hadoop clusters running in a single JVM.
 
 Here, in MRUnit test artifacts, using Classifier as hadoop2 has been chosen, because testing and running environment of all projects are in Hadoop 2 version.
 

@@ -36,7 +36,7 @@ public class MatrixMultiplication extends Configured implements Tool {
 
         if (args.length < 2) {
             System.err.printf("Usage: hadoop jar RecommenderSystem-jar-with-dependencies.jar <input files> " +
-                            "<UserMovieListOutput Directory> <Co-OccurrenceMatrixOutput Direcory> " +
+                            "<UserMovieListOutput Directory> <Co-OccurrenceMatrixOutput Directory> " +
                             "<Normalization Directory> <Multiplication Directory> <> [generic options]\n" +
                             "Here, the <input file> and <MatrixMultiplication Output Directory> are missing!\n",
                     getClass().getSimpleName());
@@ -44,14 +44,14 @@ public class MatrixMultiplication extends Configured implements Tool {
             return -1;
         }
 
-        Configuration conf = new Configuration();
+        Configuration conf = getConf();
 
         Job job = Job.getInstance(conf);
         job.setJobName("Matrix Multiplication MapReduce Job");
         job.setJarByClass(MatrixMultiplication.class);
 
         ChainMapper.addMapper(job, CooccurrenceMapper.class, LongWritable.class, Text.class, Text.class, Text.class, conf);
-        ChainMapper.addMapper(job, RatingMapper.class, LongWritable.class, Text.class, Text.class, Text.class, conf);
+        ChainMapper.addMapper(job, RatingMapper.class, Text.class, Text.class, Text.class, Text.class, conf);
 
         job.setMapperClass(CooccurrenceMapper.class);
         job.setMapperClass(RatingMapper.class);
@@ -81,6 +81,7 @@ public class MatrixMultiplication extends Configured implements Tool {
 
             //input: movieB \t movieA=relation
             String[] input = value.toString().trim().split("\t");
+
             if (input.length < 2) {
                 return;
             }
@@ -114,7 +115,7 @@ public class MatrixMultiplication extends Configured implements Tool {
 
         /** collect the data for each movie, then do the multiplication
          *
-         * @param key Movie ID
+         * @param key Movie ID (column index)
          * @param values <movieID_A=relation, movieID_C=relation... userID_A:rating, userID_B:rating...>
          * @param context key is userID:movieID, value is rating*relation
          * @throws IOException
@@ -124,9 +125,10 @@ public class MatrixMultiplication extends Configured implements Tool {
         public void reduce(Text key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
 
-            Map<String, Double> relationMap = new HashMap<>(); // movie id and relation
+            Map<String, Double> relationMap = new HashMap<>(); // movie id (row index) and relation
             Map<String, Double> ratingMap = new HashMap<>();   // user id and rating
 
+            // build up HashMap, relationMap and ratingMap
             for (Text value : values) {
                 String data = value.toString().trim();
 
@@ -134,6 +136,7 @@ public class MatrixMultiplication extends Configured implements Tool {
                     String[] movieRelation = data.split("=");
                     try {
                         Double ralation = Double.parseDouble(movieRelation[1]);
+                        // movieRelation[0] is the row index
                         relationMap.put(movieRelation[0], ralation);
                     } catch (NumberFormatException e) {
                         continue;
@@ -143,6 +146,7 @@ public class MatrixMultiplication extends Configured implements Tool {
 
                     try {
                         Double rating = Double.parseDouble(userRating[1]);
+                        // userRating[0] is user id
                         ratingMap.put(userRating[0], rating);
                     } catch (NumberFormatException e) {
                         continue;
@@ -150,11 +154,13 @@ public class MatrixMultiplication extends Configured implements Tool {
                 }
             }
 
+            // build up Output: userId:movieId(refer to the row index) \t
             for (Map.Entry<String, Double> movieRelation: relationMap.entrySet()) {
 
-                String movieId = movieRelation.getKey();
+                String movieId = movieRelation.getKey();  // row index
                 Double relation = movieRelation.getValue();
 
+                // calculate the multiplication of the ratings of each user and the current cell
                 for (Map.Entry<String, Double> userRating: ratingMap.entrySet()) {
                     String userId = userRating.getKey();
                     Double rating = userRating.getValue();
