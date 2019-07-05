@@ -2,7 +2,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -14,8 +13,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+
 
 public class CellSum extends Configured implements Tool {
 
@@ -64,8 +62,21 @@ public class CellSum extends Configured implements Tool {
 
     }
 
+    /**
+     *
+     */
     public static class SumMapper extends Mapper<LongWritable, Text, Text, DoubleWritable> {
 
+        /** load data from HDFS, then post it to reducer
+         * Input is the multiplication result of two matrices cells
+         * user_id:movie_id \t rating
+         *
+         * @param key file offset
+         * @param value user_id:movie_id \t rating   (movie_id refers to the row index)
+         * @param context user_id:movie_id \t rating
+         * @throws IOException
+         * @throws InterruptedException
+         */
         @Override
         public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
@@ -82,12 +93,20 @@ public class CellSum extends Configured implements Tool {
 
     public static class SumReducer extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
 
+        /**
+         *
+         * @param key  user_id:movie_id
+         * @param values Iterable<DoubleWritable>, ratings
+         * @param context
+         * @throws IOException
+         * @throws InterruptedException
+         */
         @Override
         public void reduce(Text key, Iterable<DoubleWritable> values, Context context)
                 throws IOException, InterruptedException {
 
             double sum = 0.0;
-            for (DoubleWritable value: values) {
+            for (DoubleWritable value : values) {
                 sum += value.get();
             }
 
