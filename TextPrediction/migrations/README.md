@@ -33,8 +33,7 @@ TextPrediction /
     * migrate
     * textprediction /
         * phinx.yml
-        * 20150309164429_create_initial_tables.php
-        * 20150309164731_create_initial_data.php
+        * 20190709164429_create_ngram_tables.php
     
 **Commands**
 
@@ -42,19 +41,19 @@ The following commands are available for migrations:
 
     * Status
         * migrate status <domain> -e <environment>
-        * example: migrate status externaldata -e aws
+        * example: migrate status textprediction -e local
         * Returns the status of each migration file against the environment database
     * Create
         * migrate create <MigrationName> <domain>
-        * example: migrate create MyTable externaldata
-        * Creates a migration file in the externaldata subdirectory
+        * example: migrate create MyTable textprediction
+        * Creates a migration file in the textprediction subdirectory
     * Migrate
         * migrate <domain> -e <environment>
-        * example: migrate externaldata -e aws
+        * example: migrate textprediction -e local
         * Runs unapplied migrations in the environment database
     * Rollback
         * migrate rollback <domain> -e <environment>
-        * migrate: migrate rollback externaldata -e aws
+        * example: migrate rollback textprediction -e local
         * Unapplies the last migration in the environment database
         
 
