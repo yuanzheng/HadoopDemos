@@ -14,6 +14,7 @@ http://www.limfinity.com/ir/
 
 Reference pagers:
 
+- [谷歌背后的数学](https://www.changhai.org/articles/technology/misc/google_math.php)
 - [The Anatomy of a Large-Scale Hypertextual Web Search Engine](http://infolab.stanford.edu/~backrub/google.html)
 - [The PageRank Citation Ranking: Bringing Order to the Web](http://ilpubs.stanford.edu:8090/422/1/1999-66.pdf)
 - [Convergence Analysis of an Improved PageRank Algorithm](https://projects.ncsu.edu/crsc/reports/ftp/pdf/crsc-tr04-02.pdf) 
@@ -177,6 +178,7 @@ PageRank 原公式：
 ![](pagerank.png)
 
 阻尼系数d(damping factor), 一般定义为用户随机点击链接的概率，根据工程经验一般取0.85。而(1-d)代表着不考虑入站链接的情况下随机进入一个页面的概率。
+
 
 
 

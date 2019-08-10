@@ -121,6 +121,7 @@ public class Driver extends Configured implements Tool {
         String database = conf2.get("mysql_database");
         String username = conf2.get("mysql_username");
         String password = conf2.get("mysql_password");
+        String table = conf2.get("ngram_table");
 
         DBConfiguration.configureDB(conf2,
                 "com.mysql.jdbc.Driver",
@@ -166,7 +167,7 @@ public class Driver extends Configured implements Tool {
         TextInputFormat.setInputPaths(job2, nGramLib);
 
         // define the table: table name and columns
-        DBOutputFormat.setOutput(job2, "output", new String[]{"starting_phrase", "following_word", "count"});
+        DBOutputFormat.setOutput(job2, table, new String[]{"starting_phrase", "following_word", "count"});
 
 
         return job2.waitForCompletion(true)? 0 : 1;
