@@ -85,14 +85,13 @@ WebSite with higher pagerank will pass higher weight! However，How to represent
 
 ### How to calculate PR1 ###
 
-Transition matrix 乘以 PR0 = PR1
+公式： Transition matrix 乘以 PR0 = PR1
 
 例如：
 
 B -> A 从网页B 有1/2的可能性跳转到 网页A （概率有 1/2）。网页 B 的重要性（权重）是 1/4，意味着在从网页 B 跳转的时候，会有1/4的重要性转移。
 
 这个公式把 “数量假设”和 “质量假设”结合在一起了：
-
 
     PR2 = Transition Matrix * PR1
     …
@@ -127,11 +126,57 @@ PRn = Transition Matrix * PR(n-1)，要求是一定可以从当前网页跳转�
 	
     根据这些反馈，也可以判断模型的好坏（给用户的推荐，用户点击率很高，停留时间很长。那么模型很好）
 	
-2. Dead ends，某个网站是个断点（哪都不指向）
+2. Dead ends，某个网站是个断点（哪都不指向）<br>
+    A -> C, D -> C 但 C 不会指向任何地方！（重要性只被转移进来，但不会转移出去）<br>
+    几次迭代后，收敛结果是：所有网页的分数为0
+    
+3. Spider traps <br>
+   A -> C, D -> C 但 C 只会指向自己！（重要性只被转移进来，但不会转移出去）<br>
+   几次迭代后，收敛结果是: 除了网页C，其他网页的分数为0
 
 
+### Edge Cases 解决方案 ###
+
+想想，在遇到edge cases时，主观上是会关掉当前网页，再打开一个， 所以我们需要算法可以模拟这种行为。
+
+PR（n）= Transition Matrix * PR(n-1) 一定可以从当前网站navigate 到其他网站
+
+* 但用户并不是一定要在当前网页中跳转！ 
+* 但，用户是有Beta的可能性打开其他网页<br>
+  (这个与PageRank原文相反，原文：阻尼系数d(damping factor), 一般定义为用户随机点击链接的概率，根据工程经验一般取0.85。而(1-d)代表着不考虑入站链接的情况下随机进入一个页面的概率。)
+* 所以用户还是有 1 - Beta的可能性会留在当前网页中跳转到其他网页
+
+因此，要乘以（1-Beta）。既（1-Beta）* Transition Matrix * PR(n-1)
+
+用户还是有自己的主观能动性，有Beta的可能性会关掉当前的网站，再打开其他网站。
+
+公式改为：
+PR（n）= （1-Beta）* Transition Matrix * PR(n-1) + Beta * PR（n-1）
+
+Beta 取值 在  0.15 到 0.2 之间
+
+思考一下：   
+问什么 Beta * PR（n-1)就表示close current page and open a new one? <br>
+PR（n-1)表示的是 用户打开任意一个其他的网页。（PR(n-1) 的值表示打开的每一个网页的权重）
+所以Beta * PR（n-1)表示打开任意一个其他网页的可能性。
+
+为什么不是Beta * PR0？
+
+业界有两种做法，个有优缺点：<br>
+1. PR（n）= （1-Beta）* Transition Matrix * PR(n-1) + Beta * PR（n-1）
+   * 优点：要考虑各个网页的重要性，不是以均等的可能性跳转到其他网页。
+   * 缺点：因为edge cases是存在的， PR（n-1）的值是会受到影响，就不准确。这时，后面再加上一个Beta * PR(n-1)就会导致不准确的概率更高一些。
+	
+2. PR（n）= （1-Beta）* Transition Matrix * PR(n-1) + Beta * PR0 <br>
+   * 优点：不会被edge cases影响
+   * 缺点：意味着我始终认为有均等的可能性跳转到其他网站，这是瞎扯！这意味着，我们忽略了网页重要性对用户选择的影响。
 
 
+PageRank 原公式：
+
+![](pagerank.png)
+
+阻尼系数d(damping factor), 一般定义为用户随机点击链接的概率，根据工程经验一般取0.85。而(1-d)代表着不考虑入站链接的情况下随机进入一个页面的概率。
 
 
 
