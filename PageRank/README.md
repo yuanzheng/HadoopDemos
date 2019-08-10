@@ -14,6 +14,7 @@ http://www.limfinity.com/ir/
 
 Reference pagers:
 
+- [谷歌背后的数学](https://www.changhai.org/articles/technology/misc/google_math.php)
 - [The Anatomy of a Large-Scale Hypertextual Web Search Engine](http://infolab.stanford.edu/~backrub/google.html)
 - [The PageRank Citation Ranking: Bringing Order to the Web](http://ilpubs.stanford.edu:8090/422/1/1999-66.pdf)
 - [Convergence Analysis of an Improved PageRank Algorithm](https://projects.ncsu.edu/crsc/reports/ftp/pdf/crsc-tr04-02.pdf) 
@@ -128,6 +129,7 @@ PRn = Transition Matrix * PR(n-1)，要求是一定可以从当前网页跳转�
     根据这些反馈，也可以判断模型的好坏（给用户的推荐，用户点击率很高，停留时间很长。那么模型很好）
 	
 2. Dead ends，某个网站是个断点（哪都不指向）
+
 
 
 
