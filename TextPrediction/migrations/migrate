@@ -1,0 +1,68 @@
+#! /bin/bash
+
+#
+# Get args and see if we are migrating one db or all dbs
+#
+
+case $1 in
+	create)
+		CMD="create $2 --template migration.template"
+    shift
+		shift
+		;;
+  init)
+    CMD="init"
+    shift
+    ;;
+  rollback)
+    CMD="rollback"
+    shift
+    ;;
+  migrate)
+    CMD="migrate"
+	  shift
+    ;;
+  status)
+    CMD="status"
+		shift
+    ;;
+	help)
+		echo "migrate <command> <dir> [ -e <environment> ] [ -c <config> ]"
+		exit
+		;;
+	*)
+		CMD="migrate"
+		;;
+esac
+
+ARGS=("phinx $CMD")
+DIR=$1
+shift
+CONFIG_PROVIDED=0
+
+while [[ $# > 1 ]]
+do
+	key="$1"
+	case $key in
+	  "-c")
+			CONFIG_PROVIDED=1
+			ARGS+=("$key $2 ")
+			;;
+    *)
+    	# Keeps these args to pass to phinx
+			ARGS+=("$key $2 ")
+    	;;
+	esac
+  shift
+	shift
+done
+
+if [ $CONFIG_PROVIDED -ne "1" ]
+then
+	ARGS+=(" -c $DIR/phinx.yml")
+fi
+
+# run the command and get the result
+cmd_exec=`${ARGS[@]}`
+echo "$cmd_exec"
+

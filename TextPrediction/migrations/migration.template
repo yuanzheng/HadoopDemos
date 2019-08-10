@@ -1,0 +1,23 @@
+<?php
+date_default_timezone_set('America/Denver');
+use $useClassName;
+
+class $className extends $baseClassName
+{
+
+    /**
+     * Migrate Up.
+     */
+    public function up()
+    {
+
+    }
+
+    /**
+     * Migrate Down.
+     */
+    public function down()
+    {
+
+    }
+}
