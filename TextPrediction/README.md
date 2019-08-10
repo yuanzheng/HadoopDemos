@@ -12,8 +12,11 @@ After a user types a word, it gives following words in several options.
 We adopt the N-Gram Model in this project.
 
 **What is N-Gram?** 
-An n-gram is a contiguous sequence of n items from a given sequence of text or speech.
-We love big _____?
+
+An n-gram is a contiguous sequence of n items from a given sequence of text or speech. In other word, we recommend the 
+word or phrase of which is the highest probability appearing after a phrase.
+
+For example, we love big _____?
 - data
 - apple
 
@@ -24,11 +27,18 @@ Using probability predict, phrase 'data' should be recommended first rather than
 
 In this project, it will do: Based on the first N words, it will give the following N words.
 
+To apply this theory in the production, we implement the probability computation in the following steps below.
+
 **Steps** 
 - Read a large-scale document collections
 - Build n-gram library (MapReduce job1)
 - Calculate probability (MapReduce job2)
 
+
+**避免Out of Memory**
+
+Threshold : n-gram library 的输入中筛掉 出现次数很少的 phrase
+topK:           只把 概率排名topk的 phrase 加入到 DB
 
 ## Coding Plans ##
 

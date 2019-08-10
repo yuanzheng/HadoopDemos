@@ -114,24 +114,18 @@ public class LanguageModelBuilder {
 
             // Select top K value for each key phrase
             Iterator<Integer> iter = treeMap.keySet().iterator();
-            int counter = 0;
-            while (iter.hasNext()) {
 
-                int frequency = iter.next();
-                List<String> words = treeMap.get(frequency);
+            for (int i = 0; iter.hasNext() && i < topk; i++) {
+
+                int keyCount = iter.next();
+                List<String> words = treeMap.get(keyCount);
 
                 for (String eachWord : words) {
                     // write to database
-                    context.write(new DBOutputWritable(key.toString(), eachWord, frequency), NullWritable.get());
-                    counter++;
-
-                    if (counter < topk) {
-                        break;
-                    }
+                    context.write(new DBOutputWritable(key.toString(), eachWord, keyCount), NullWritable.get());
+                    i++;
                 }
             }
-
-
         }
 
     }
