@@ -14,6 +14,9 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
+/**
+ * @author Lucas Song
+ */
 public class CellMultiplicationTest {
 
     //Specification of Mapper
