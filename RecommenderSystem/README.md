@@ -20,12 +20,12 @@ This project is designed to process 1GB Netflix movie data to calculate possible
 
 
 Sparse matrix我们可以采用稀疏矩阵的存储方式，只存储那些非零的数值。
-## References ##
+#### References ####
 https://www.codeproject.com/Articles/620717/Building-A-Recommendation-Engine-Machine-Learning
 http://blog.fens.me/hadoop-mapreduce-matrix/
 http://blog.fens.me/hadoop-mapreduce-recommend/
 
-### Theory ###
+## Theory ##
 
 有两种推荐算法
 * User Collaborative Filtering (User CF)  基于用户的协同过滤
