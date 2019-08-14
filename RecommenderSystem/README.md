@@ -76,10 +76,35 @@ Based on movie's info
 
 ## Implementation 原理 ##
 #### Build co-occurrence matrix ####
+共生矩阵：A co-occurrence matrix is a matrix that is defined over an image to be the distribution of co-occurring pixel
+ values (grayscale values, or colors) at a given offset.
+ 
+要表现物品的相似性，同时是两两相似性，matrix就是一种方法（in graph）。多少用户同时rate当前电影的这种方法来表示当前这两部电影的相似性是多少！
+同时被多少人rate过，就可以说2部电影的关系是什么。
 
-
+共生矩阵 -- 表示相同的人打过分
 
 #### Normalization(归一化处理) ####
+（通过归一化将属性数据按照比例缩放，这样就可以将数值落入一个特定的区间内）
+
+|   User   |    M1     |    M2     |    M3     |    M4     |    M5    |
+|   ----   |   ----    |   ----    |   ----    |   ----    |   ----   |
+|   A      |     1     |     1     |   ----    |     1     |   ----   |
+|   B      |     1     |     1     |     1     |   ----    |   ----   |
+|   C      |   ----    |     1     |     1     |   ----    |     1    |
+|   D      |   ----    |     1     |   ----    |     1     |   ----   |
+
+
+M 代表 Movie.
+思考：根据上图2中，（M1，M2）=2， （M2，M1）=2 这两个2的分量一样吗？
+对M1而言，与M1、M2、M3、M4 有关联性
+对M2而言，与M1、M2、M3、M4 、M5 有关联性
+抛开相对值，而只考虑绝对值是不对的，要在关系网中整体讨论！！！
+怎样引入M1 与 其他所有电影的关系网呢？
+M1与其他所有的电影关系总和是 2 + 2 + 1 + 1 = 6 ，所以对M1而言M2与他关系是6分关系网中的2份，即分量是2/6。M1与M2 的关系中，在他寥寥无几的关联性当中，比较重要的了
+
+M2 与其他所有的电影关系总和是 2 + 4 + 2 + 2 + 1 = 11 ，所以在这11个关系里M2与 M1 的关系是 11个关系中的2分，即分量是 2/11（所以对于M2来说，它与M1 的关联性在的关系网中就不是那么重要了）
+
 
 
 #### Build Rating Matrix ####
