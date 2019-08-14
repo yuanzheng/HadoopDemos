@@ -43,7 +43,7 @@ http://blog.fens.me/hadoop-mapreduce-recommend/
 
 基于物品的相似性进行推荐
 1. 比较物 与 物之间的相似性<br>
-   例如：Movie1 与 movie3 都被打了高分，而且user C喜欢movie1，所以可以推断user 也会喜欢movie3。给user C 推荐movie3.
+   例如：User A,B,C 都给 Movie1 打了高分，而且userA 喜欢movie3，所以可以推断userC 也会喜欢movie3。所以给user C 推荐movie3.
 
     适合用在电影推荐，因为电影数 远远小于 用户数
 
@@ -51,6 +51,44 @@ http://blog.fens.me/hadoop-mapreduce-recommend/
 * The number of users weighs more than number of products
 * Item will not change frequently, lowering calculation （Item 的属性是固定的！而人变化性很高的，改变频率高。降低计算频率）
 * Using a user’s historical data, more convincing (都是根据本人的历史纪录进行推荐)
+
+
+How to define relationship between different movies?
+
+Based on movie's info
+* Movie category
+* Movie producer
+
+不要限制找物品相似性的渠道，也可以把user profile考虑在内
+* Watching history
+* Rating history
+* Favorite list
+
+这里我排除几个可能性：
+1. 避免水军
+2. 不考虑专业做电影的人
+
+的确会有些噪音，但数据量大就不回造成影响！
+多维比较物品相似性
+
+在这个项目中只考虑一维： users' rating history to build relationship between movies.
+
+
+## Implementation 原理 ##
+#### Build co-occurrence matrix ####
+
+
+
+#### Normalization(归一化处理) ####
+
+
+#### Build Rating Matrix ####
+
+
+#### Recommend Movie for Users ####
+
+
+
 
 
 ### 延伸阅读 ###
