@@ -1,6 +1,5 @@
 # HadoopDemos
 ## Big Data &amp; Hadoop Ecosystem
-TEst
 
 This repository contains the samples that demonstrate several system designs on Hadoop Ecosystem. It contains the usage of MapReduce programming model, MySQL, Hbase and ... [TODO]
 
